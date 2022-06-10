@@ -2,6 +2,7 @@ package org.paasta.container.platform.common.api.exception;
 
 import org.paasta.container.platform.common.api.common.CommonUtils;
 import org.paasta.container.platform.common.api.common.Constants;
+import org.paasta.container.platform.common.api.common.ResultStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -82,4 +83,11 @@ public class GlobalExceptionHandler extends RuntimeException {
     public ResponseEntity<ErrorMessage> getErrorResponse(String message, HttpStatus status) {
         return new ResponseEntity(new ErrorMessage(status.value(), message), status);
     }
+
+    @ExceptionHandler({ResultStatusException.class})
+    @ResponseBody
+    public ResultStatus resultStatusException(ResultStatusException ex) {
+        return new ResultStatus(Constants.RESULT_STATUS_FAIL, ex.getMessage());
+    }
+
 }

@@ -13,9 +13,9 @@ import java.util.List;
 /**
  * Users Specification 클래스
  *
- * @author hrjin
+ * @author kjhoon
  * @version 1.0
- * @since 2020.11.06
+ * @since 2022.05.31
  **/
 @Data
 public class UsersSpecification implements Specification<Users> {

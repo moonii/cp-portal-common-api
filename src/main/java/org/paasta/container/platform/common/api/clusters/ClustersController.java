@@ -49,15 +49,27 @@ public class ClustersController {
     /**
      * Clusters 정보 조회(Get Clusters Info)
      *
-     * @param clusterName the cluster name
+     * @param clusterId the cluster id
      * @return the Clusters
      */
     @ApiOperation(value="Clusters 정보 조회(Get Clusters Info)", nickname="getClusters")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "clusters", value = "클러스터 명", required = true, dataType = "String", paramType = "path")
+            @ApiImplicitParam(name = "clusterId", value = "클러스터 아이디", required = true, dataType = "String", paramType = "path")
     })
-    @GetMapping(value = "{clusterName:.+}")
-    public Clusters getClusters(@PathVariable String clusterName) {
-        return clustersService.getClusters(clusterName);
+    @GetMapping(value = "{clusterId:.+}")
+    public Clusters getClusters(@PathVariable String clusterId) {
+        return clustersService.getClusters(clusterId);
+    }
+
+
+    /**
+     * Clusters 목록 조회(Get Clusters List)
+     *
+     * @return the clustersList
+     */
+    @ApiOperation(value="Clusters 목록 조회(Get Clusters List)", nickname="getClustersList")
+    @GetMapping
+    public ClustersList getClustersList() {
+        return clustersService.getClustersList();
     }
 }

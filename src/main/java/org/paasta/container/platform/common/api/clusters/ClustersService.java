@@ -1,5 +1,7 @@
 package org.paasta.container.platform.common.api.clusters;
 
+import org.paasta.container.platform.common.api.common.CommonService;
+import org.paasta.container.platform.common.api.common.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class ClustersService {
 
+    private final CommonService commonService;
     private final ClustersRepository clustersRepository;
 
 
@@ -22,7 +25,8 @@ public class ClustersService {
      * @param clustersRepository the cluster repository
      */
     @Autowired
-    public ClustersService(ClustersRepository clustersRepository) {
+    public ClustersService(CommonService commonService, ClustersRepository clustersRepository) {
+        this.commonService = commonService;
         this.clustersRepository = clustersRepository;
     }
 
@@ -39,10 +43,32 @@ public class ClustersService {
     /**
      * Clusters 정보 조회(Get Clusters Info)
      *
-     * @param clusterName the cluster name
+     * @param clusterId the cluster id
      * @return the clusters
      */
-    public Clusters getClusters(String clusterName) {
-        return clustersRepository.findAllByClusterName(clusterName).get(0);
+    public Clusters getClusters(String clusterId) {
+        return clustersRepository.findByClusterId(clusterId);
     }
+
+    /**
+     * Clusters 정보 조회(Get Clusters List)
+     *
+     * @return the clustersList
+     */
+    public ClustersList getClustersList() {
+        ClustersList clustersList = new ClustersList(clustersRepository.findAllByOrderByClusterName());
+        return (ClustersList) commonService.setResultModel(clustersList, Constants.RESULT_STATUS_SUCCESS);
+    }
+
+
+    /**
+     * Host Clusters 정보 조회(Get Host Clusters Info)
+     *
+     * @return the clusters
+     */
+    public Clusters getHostClusters() {
+        return clustersRepository.findByClusterType(Constants.HOST_CLUSTER_TYPE);
+    }
+
+
 }

@@ -1,6 +1,7 @@
 package org.paasta.container.platform.common.api.users;
 
 import lombok.Data;
+
 import java.util.List;
 
 /**
@@ -8,7 +9,7 @@ import java.util.List;
  *
  * @author kjhoon
  * @version 1.0
- * @since 2021.06.25
+ * @since 2022.05.31
  */
 @Data
 public class UsersAdminList {
