@@ -16,5 +16,10 @@ import java.util.List;
 @Repository
 @Transactional
 public interface ClustersRepository extends JpaRepository<Clusters, Long> {
-    List<Clusters> findAllByClusterName(String clusterName);
+    Clusters findByClusterId(String clusterId);
+
+    List<Clusters> findAllByOrderByClusterName();
+
+    Clusters findByClusterType(String clusterType);
+
 }

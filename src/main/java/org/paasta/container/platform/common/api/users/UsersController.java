@@ -8,7 +8,6 @@ import org.paasta.container.platform.common.api.common.ResultStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
-import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.List;
 import java.util.Map;
@@ -18,9 +17,9 @@ import static org.paasta.container.platform.common.api.common.Constants.*;
 /**
  * User Controller 클래스
  *
- * @author hrjin
+ * @author kjhoon
  * @version 1.0
- * @since 2020.09.22
+ * @since 2022.05.31
  */
 @Api(value = "UsersController v1")
 @RestController
@@ -118,8 +117,8 @@ public class UsersController {
     @GetMapping(value = "/clusters/{cluster:.+}/users")
     public UsersAdminList getUsersListAllByCluster(@PathVariable(value = "cluster") String cluster,
                                                    @RequestParam(required = false, defaultValue = "") String searchName,
-                                                   @RequestParam(required = false, defaultValue = "true") String isActive){
-        if(isActive.equalsIgnoreCase(IS_ADMIN_FALSE)) {
+                                                   @RequestParam(required = false, defaultValue = "true") String isActive) {
+        if (isActive.equalsIgnoreCase(IS_ADMIN_FALSE)) {
             // 비활성화 사용자인 경우
             return userService.getInActiveUsersList(searchName);
         }
@@ -176,24 +175,6 @@ public class UsersController {
 
 
     /**
-     * 로그인 기능을 위한 Users 상세 조회(Get Users detail for login)
-     *
-     * @param userId  the userId
-     * @param isAdmin the isAdmin
-     * @return the users detail
-     */
-    @ApiOperation(value = "로그인 기능을 위한 Users 상세 조회(Get Users detail for login)", nickname = "getUserDetailsForLogin")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "userId", value = "유저 Id", required = true, dataType = "String", paramType = "path")
-    })
-    @GetMapping("/users/login/{userId:.+}")
-    public Users getUserDetailsForLogin(@PathVariable(value = "userId") String userId,
-                                        @ApiIgnore @RequestParam(name = "isAdmin", defaultValue = "false") String isAdmin) {
-        return userService.getUserDetailsForLogin(userId, isAdmin);
-    }
-
-
-    /**
      * Users 상세 조회(Get Users detail)
      *
      * @param userId the userId
@@ -203,9 +184,10 @@ public class UsersController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "userId", value = "User 아이디", required = true, dataType = "String", paramType = "path")
     })
-    @GetMapping("/users/{userId:.+}")
-    public UsersList getUserDetails(@PathVariable(value = "userId") String userId) {
-        return userService.getUsersDetails(userId);
+    @GetMapping("/users/{userId:.+}/{userAuthId:.+}")
+    public UsersList getUserDetails(@PathVariable(value = "userId") String userId,
+                                    @PathVariable(value = "userAuthId") String userAuthId) {
+        return userService.getUsersDetails(userId, userAuthId);
     }
 
 
@@ -247,25 +229,6 @@ public class UsersController {
     public UsersList getNamespaceListByUserId(@PathVariable(value = "cluster") String cluster,
                                               @PathVariable(value = "userId") String userId) {
         return userService.getNamespaceListByUserId(cluster, userId);
-    }
-
-
-    /**
-     * Users 정보 수정(Update Users)
-     *
-     * @param userId the userId
-     * @param users  the users
-     * @return return is succeeded
-     */
-    @ApiOperation(value = "Users 정보 수정(Update Users Info)", nickname = "updateUsers")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "userId", value = "User 아이디", required = true, dataType = "String", paramType = "path"),
-            @ApiImplicitParam(name = "users", value = "User 정보", required = true, dataType = "Users", paramType = "body")
-    })
-    @PutMapping(value = "/users/{userId:.+}")
-    public UsersList updateUsers(@PathVariable(value = "userId") String userId,
-                                 @RequestBody Users users) {
-        return userService.updateUsers(userId, users);
     }
 
 
@@ -327,7 +290,6 @@ public class UsersController {
 
 
     /**
-     * userRegisterCheck
      * CLUSTER_ADMIN 권한을 가진 운영자 상세 조회(Get Cluster Admin's info)
      *
      * @param cluster the cluster
@@ -367,75 +329,6 @@ public class UsersController {
 
     //// keycloak 이후로 추가
 
-    /**
-     * 클러스터 관리자 등록여부 조회(Cluster Admin Registration Check)
-     *
-     * @return the users
-     */
-    @ApiOperation(value = "CLUSTER ADMIN 등록여부 조회 (Cluster Admin Registration Check)", nickname = "getClusterAdminRegister")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "userId", value = "User ID", required = true, dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "userAuthId", value = "Keycloak User ID", required = true, dataType = "String", paramType = "query")
-    })
-    @GetMapping("/clusterAdminRegisterCheck")
-    public UsersList checkClusterAdminRegister(@RequestParam(required = false, defaultValue = "") String userId,
-                                               @RequestParam(required = false, defaultValue = "") String userAuthId) {
-        return userService.getClusterAdminRegisterCheck(userId, userAuthId);
-    }
-
-
-    /**
-     * User 등록여부 조회(User Registration Check)
-     *
-     * @param userId     the userId
-     * @param userAuthId the userAuthId
-     * @return the usersList
-     */
-    @ApiOperation(value = "User 등록여부 조회(User Registration Check)", nickname = "checkUserRegister")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "userId", value = "User ID", required = true, dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "userAuthId", value = "Keycloak User ID", required = true, dataType = "String", paramType = "query")
-    })
-    @GetMapping("/userRegisterCheck")
-    public UsersList checkUserRegister(@RequestParam(required = false, defaultValue = "") String userId,
-                                       @RequestParam(required = false, defaultValue = "") String userAuthId) {
-        return userService.getUserRegisterCheck(userId, userAuthId);
-    }
-
-
-    /**
-     * Clsuter Admin 등록(Sign up cluster admin)
-     *
-     * @param users the users
-     * @param param the param
-     * @return return is succeeded
-     */
-    @ApiOperation(value = "Clsuter Admin 등록(Create Cluster Admin)", nickname = "signUpClusterAdmin")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "users", value = "유저 정보", required = true, dataType = "Users", paramType = "body")
-    })
-    @PostMapping(value = "/cluster/all/admin/signUp")
-    public ResultStatus signUpClusterAdmin(@RequestBody Users users,
-                                           @RequestParam(required = false, name = "param", defaultValue = "") String param) {
-        return userService.signUpClusterAdmin(users, param);
-    }
-
-
-    /**
-     * User 등록(Sign up user)
-     *
-     * @param users the users
-     * @return return is succeeded
-     */
-    @ApiOperation(value = "User 등록(Sign up user)", nickname = "signUpUser")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "users", value = "유저 정보", required = true, dataType = "Users", paramType = "body")
-    })
-    @PostMapping(value = "/cluster/all/user/signUp")
-    public ResultStatus signUpUser(@RequestBody Users users) {
-        return userService.signUpUser(users);
-    }
-
 
     /**
      * 클러스터 관리자 계정 상세 조회(Get cluster admin info)
@@ -452,7 +345,6 @@ public class UsersController {
     }
 
 
-
     /**
      * 사용자 상세 조회(Get user info details)
      *
@@ -465,7 +357,7 @@ public class UsersController {
     })
     @GetMapping(value = "/cluster/all/user/details")
     public UsersAdmin getUserInfoDetails(@RequestParam(required = true) String userId,
-                                        @RequestParam(required = true) String userType) {
+                                         @RequestParam(required = true) String userType) {
 
         return userService.getUserInfoDetails(userId, userType);
     }
@@ -473,6 +365,7 @@ public class UsersController {
 
     /**
      * 네임스페이스 관리자 체크 조회 (Get user list whether user is namespace admin or not)
+     *
      * @param namespace the namespace
      * @return the users list
      */
@@ -493,9 +386,9 @@ public class UsersController {
     /**
      * 사용자 아이디, 사용자 인증 아이디, 네임스페이스를 통한 Users 삭제 (Delete Users by userId, userAuthId and namespace)
      *
-     * @param userId the userId
+     * @param userId     the userId
      * @param userAuthId the userAuthId
-     * @param namespace the namespace
+     * @param namespace  the namespace
      * @return return is succeeded
      */
     @ApiOperation(value = "사용자 아이디, 사용자 인증 아이디, 네임스페이스를 통한 Users 삭제 (Delete Users by userId, userAuthId and namespace)", nickname = "deleteUsersByUserIdAndUserAuthIdAndNamespace")
@@ -547,6 +440,78 @@ public class UsersController {
         return userService.deleteClusterAdmin(cluster);
 
     }
+
+
+    /**
+     * 로그인 기능을 위한 Users 상세 조회(Get Users detail for login)
+     *
+     * @param userId the userId
+     * @return the users detail
+     */
+    @ApiOperation(value = "로그인 기능을 위한 Users 상세 조회(Get Users detail for login)", nickname = "getUserDetailsForLogin")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "userId", value = "유저 Id", required = true, dataType = "String", paramType = "path")
+    })
+    @GetMapping("/login/users/{userId:.+}")
+    public Users getUserDetailsForLogin(@PathVariable(value = "userId") String userId) {
+        return userService.getUserDetailsForLogin(userId);
+    }
+
+
+    //////////////////////////////////////////////////////////////////////
+
+    /**
+     * User 등록여부 조회(Check User Registration)
+     *
+     * @return the resultStatus
+     */
+    @ApiOperation(value = "User 등록여부 조회(Check User Registration)", nickname = "checkUserRegister")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "userId", value = "User ID", required = true, dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "userAuthId", value = "Keycloak User ID", required = true, dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "userType", value = "User Type", required = true, dataType = "String", paramType = "query")
+    })
+    @GetMapping("/userRegisterCheck")
+    public ResultStatus checkUserRegister(@RequestParam(required = false, defaultValue = "") String userId,
+                                          @RequestParam(required = false, defaultValue = "") String userAuthId,
+                                          @RequestParam(required = false, defaultValue = "") String userType) {
+
+        if (userType.equals(AUTH_SUPER_ADMIN)) {
+            return userService.getSuperAdminRegisterCheck(userId, userAuthId);
+        }
+
+        return userService.getUserRegisterCheck(userId, userAuthId);
+    }
+
+
+    /**
+     * User 등록 (Sign up user)
+     *
+     * @param users the users
+     * @return return is succeeded
+     */
+    @ApiOperation(value = "User 등록(Sign up user)", nickname = "signUpUser")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "users", value = "유저 정보", required = true, dataType = "Users", paramType = "body")
+    })
+    @PostMapping(value = "/user/signUp")
+    public ResultStatus signUpUser(@RequestBody Users users) {
+        return userService.signUpUser(users);
+    }
+
+
+    /**
+     * User가 사용하는 Clusters 목록 조회(Get Clusters List Used By User)
+     *
+     * @return the clustersList
+     */
+    @ApiOperation(value = "User가 사용하는 Clusters 목록 조회(Get Clusters List Used By User)", nickname = "getClustersListUsedByUser")
+    @GetMapping(value = "clusters/users/{userId:.+}/{userAuthId:.+}")
+    public UsersList getClustersListUsedByUser(@PathVariable String userId,
+                                               @PathVariable String userAuthId) {
+        return userService.getClustersListUsedByUser(userId, userAuthId);
+    }
+
 
 }
 

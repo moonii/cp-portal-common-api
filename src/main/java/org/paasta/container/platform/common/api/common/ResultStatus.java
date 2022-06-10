@@ -5,9 +5,9 @@ import lombok.Data;
 /**
  * ResultStatus Model 클래스
  *
- * @author hrjin
+ * @author kjhoon
  * @version 1.0
- * @since 2020.08.28
+ * @since 2022.06.09
  **/
 @Data
 public class ResultStatus {
@@ -51,5 +51,13 @@ public class ResultStatus {
         this.detailMessage = detailMessage;
         this.nextActionUrl = nextActionUrl;
     }
+
+    public ResultStatus(String resultCode, String resultMessage) {
+        this.resultCode = resultCode;
+        this.resultMessage = resultMessage;
+        this.detailMessage = resultMessage;
+        this.nextActionUrl = Constants.NULL_REPLACE_TEXT;
+    }
+
 
 }

@@ -33,6 +33,7 @@ public class Constants {
 
 
     // authority
+    public static final String AUTH_SUPER_ADMIN = "SUPER_ADMIN";
     public static final String AUTH_CLUSTER_ADMIN = "CLUSTER_ADMIN";
     public static final String AUTH_NAMESPACE_ADMIN = "NAMESPACE_ADMIN";
     public static final String AUTH_USER = "USER";
@@ -56,18 +57,20 @@ public class Constants {
     public static final String USER_CREATE_SUCCESS_MESSAGE = "User Create successs.";
     public static final String USER_NOT_REGISTERED_IN_KEYCLOAK_MESSAGE = "USER_NOT_REGISTERED_IN_KEYCLOAK";
     public static final String USER_NOT_MAPPED_TO_THE_NAMESPACE_MESSAGE = "USER_NOT_MAPPED_TO_THE_NAMESPACE";
+    public static final String SUPER_ADMIN_ALREADY_REGISTERED_MESSAGE = "SUPER_ADMIN_ALREADY_REGISTERED";
+    public static final String USER_ALREADY_REGISTERED_MESSAGE = "USER_ALREADY_REGISTERED";
+    public static final String USER_REGISTRATION_AVAILABLE_MESSAGE = "USER_REGISTRATION_AVAILABLE";
 
     public static final ErrorMessage NOT_FOUND_RESULT_STATUS =
             new ErrorMessage(Constants.RESULT_STATUS_FAIL, CommonErrCode.NOT_FOUND.name(), CommonErrCode.NOT_FOUND.getErrCode(),CommonErrCode.NOT_FOUND.name());
 
 
-    public static final ResultStatus USER_CREATE_FAILED =  new ResultStatus(Constants.RESULT_STATUS_FAIL, USER_CREATE_FAILED_MESSAGE,
-            200, USER_CREATE_FAILED_MESSAGE);
 
     public static final ResultStatus USER_CREATE_SUCCESS =  new ResultStatus(Constants.RESULT_STATUS_SUCCESS, USER_CREATE_SUCCESS_MESSAGE,
             200, USER_CREATE_SUCCESS_MESSAGE);
 
     public static final UsersList USER_NOT_REGISTERED_IN_KEYCLOAK = new UsersList(Constants.RESULT_STATUS_SUCCESS, Constants.USER_NOT_REGISTERED_IN_KEYCLOAK_MESSAGE);
+
 
     public static final Users USER_NOT_FOUND = new Users(Constants.RESULT_STATUS_FAIL, CommonStatusCode.NOT_FOUND.getMsg());
     public static final Users USER_NOT_FOUND_IN_KEYCLOAK = new Users(Constants.RESULT_STATUS_FAIL, Constants.USER_NOT_REGISTERED_IN_KEYCLOAK_MESSAGE);
@@ -77,4 +80,6 @@ public class Constants {
     private Constants() {
         throw new IllegalStateException();
     }
+
+    public static final String HOST_CLUSTER_TYPE = "HOST";
 }
