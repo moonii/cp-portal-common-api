@@ -56,7 +56,7 @@ public class ClustersController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "clusterId", value = "클러스터 아이디", required = true, dataType = "String", paramType = "path")
     })
-    @GetMapping(value = "{clusterId:.+}")
+    @GetMapping(value = "/{clusterId:.+}")
     public Clusters getClusters(@PathVariable String clusterId) {
         return clustersService.getClusters(clusterId);
     }

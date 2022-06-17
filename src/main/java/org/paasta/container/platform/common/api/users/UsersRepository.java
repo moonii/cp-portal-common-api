@@ -85,7 +85,7 @@ public interface UsersRepository extends JpaRepository<Users, Long>, JpaSpecific
 
     List<Users> findAllByUserType(String userType);
 
-    void deleteAllByUserType(String userType);
+
 
     void deleteAllByUserIdAndUserType(String userId, String userType);
 
@@ -138,19 +138,41 @@ public interface UsersRepository extends JpaRepository<Users, Long>, JpaSpecific
 
     List<Users> findAllByUserIdOrderByCreatedDesc(String userId);
 
-    @Query(value = "delete from cp_users where user_id = :userId and user_auth_id != :userAuthId", nativeQuery = true)
-    void deleteUsersWithUnequalAuthId(@Param("userId") String userId, @Param("userAuthId") String userAuthId);
 
 
     List<Users> findAllByClusterIdAndCpNamespaceAndUserIdAndUserAuthId(String clusterId, String namespace, String userId, String userAuthId);
 
 
-    @Query(value = "SELECT DISTINCT b.cluster_id, b.cluster_name, a.user_id, a.user_auth_id, a.user_type " +
+    @Query(value = "SELECT DISTINCT b.cluster_id, b.cluster_name, b.cluster_type, a.user_type " +
             "FROM cp_users a, cp_clusters b " +
             "WHERE a.cluster_id = b.cluster_id " +
             "AND NOT (b.cluster_type = :clusterType AND a.namespace = :namespace ) " +
-            "AND a.user_id = :userId " +
             "AND a.user_auth_id = :userAuthId " +
             "ORDER BY b.cluster_name; ", nativeQuery = true)
-    List<Object[]> findClustersUsedByUser(@Param("clusterType") String clusterType, @Param("namespace") String namespace, @Param("userId") String userId, @Param("userAuthId") String userAuthId);
+    List<Object[]> findClustersUsedByUser(@Param("clusterType") String clusterType, @Param("namespace") String namespace, @Param("userAuthId") String userAuthId);
+
+
+    @Query(value = "SELECT * FROM cp_users "+
+                   "WHERE cluster_id = :clusterId AND user_auth_id = :userAuthId AND namespace NOT IN (:defaultNamespace)", nativeQuery = true)
+    List<Users> getUserMappingListByCluster(@Param("clusterId") String clusterId, @Param("userAuthId") String userAuthId,  @Param("defaultNamespace") String defaultNamespace);
+
+
+
+    List<Users> findAllByClusterIdAndCpNamespaceAndUserAuthId(String clusterId, String namespace, String userAuthId);
+
+
+
+
+    @Query(value = "delete from cp_users where user_id = :userId and user_auth_id != :userAuthId", nativeQuery = true)
+    void deleteUsersWithUnequalAuthId(@Param("userId") String userId, @Param("userAuthId") String userAuthId);
+
+    @Query(value = "SELECT* FROM cp_users WHERE user_id = :userId and user_auth_id != :userAuthId AND namespace != :defaultNamespace ;", nativeQuery = true)
+    List<Users> getUsersListWithUnequalAuthId(@Param("userId") String userId, @Param("userAuthId") String userAuthId,  @Param("defaultNamespace") String defaultNamespace);
+
+    @Query(value = "SELECT* FROM cp_users WHERE user_id = :userId and user_auth_id = :userAuthId AND namespace != :defaultNamespace ;", nativeQuery = true)
+    List<Users> getUsersListWithAuthId(@Param("userId") String userId, @Param("userAuthId") String userAuthId,  @Param("defaultNamespace") String defaultNamespace);
+
+    void deleteAllByUserType(String userType);
+
+    void deleteAllByUserIdAndUserAuthId(String userId, String userAuthId);
 }

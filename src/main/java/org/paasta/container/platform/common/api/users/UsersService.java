@@ -1,6 +1,7 @@
 package org.paasta.container.platform.common.api.users;
 
 import org.paasta.container.platform.common.api.clusters.Clusters;
+import org.paasta.container.platform.common.api.clusters.ClustersList;
 import org.paasta.container.platform.common.api.clusters.ClustersService;
 import org.paasta.container.platform.common.api.common.*;
 import org.paasta.container.platform.common.api.exception.ResultStatusException;
@@ -78,14 +79,7 @@ public class UsersService {
      */
     @Transactional
     public Users createUsers(Users users) {
-
         Users createdUsers = new Users();
-
-        List<Users> existUser = userRepository.findAllByCpNamespaceAndUserId(propertyService.getDefaultNamespace(), users.getUserId());
-        users.setUserAuthId(existUser.get(0).getUserAuthId());
-
-        //CP 클러스터 정보 조회
-        users = setClusterInfoToUser(users);
 
         try {
             createdUsers = userRepository.save(users);
@@ -270,14 +264,14 @@ public class UsersService {
     /**
      * Namespace 와 UserId로 Users 단 건 상세 조회(Get Users namespace userId detail)
      *
-     * @param namespace the namespace
-     * @param userId    the userId
+     * @param cluster    the cluster
+     * @param namespace  the namespace
+     * @param userAuthId the userAuthId
      * @return the users
      */
-    public Users getUsers(String namespace, String userId) {
+    public Users getUsers(String cluster, String namespace, String userAuthId) {
 
-        UsersList usersList = new UsersList();
-        usersList.setItems(userRepository.findAllByCpNamespaceAndUserId(namespace, userId));
+        UsersList usersList = new UsersList(userRepository.findAllByClusterIdAndCpNamespaceAndUserAuthId(cluster, namespace, userAuthId));
         usersList = compareKeycloakUser(usersList);
 
         if (usersList.getItems().size() < 1) {
@@ -423,25 +417,32 @@ public class UsersService {
      *
      * @return the resultStatus
      */
-    public ResultStatus getSuperAdminRegisterCheck(String userId, String userAuthId) {
+    public UsersList getSuperAdminRegisterCheck(String userId, String userAuthId) {
 
         // 1. 해당계정이 KEYCLOAK 에 등록된 계정인지 확인
         checkKeycloakUser(userId, userAuthId);
 
-        // 2. SUPER_ADMIN 계정 존재하는지 확인
+        // 2. SUPER_ADMIN 계정 등록 유무 확인
         List<Users> superAdmin = userRepository.findAllByUserType(Constants.AUTH_SUPER_ADMIN);
-        UsersList usersList = new UsersList(superAdmin);
+        UsersList superAdminList = new UsersList(superAdmin);
 
-        // 3. KEYCLOAK 과 CP USER 사용자 비교 (동일한 USER-ID 이지만  KEYCLOAK 내 삭제된 계정 제외 처리)
-        usersList = compareKeycloakUser(usersList);
-        if (usersList.getItems().size() > 0) {
-            // SUPER_ADMIN 계정 존재인 경우 메세지 반환 처리
+        // 3. KEYCLOAK 과 CP USER 사용자 비교 (동일한 USER-ID 이지만 KEYCLOAK 내 삭제된 계정 제외 처리)
+        superAdminList = compareKeycloakUser(superAdminList);
+        if (superAdminList.getItems().size() > 0) {
+            // SUPER_ADMIN 계정 존재하는 경우 메세지 반환 처리
             throw new ResultStatusException(Constants.SUPER_ADMIN_ALREADY_REGISTERED_MESSAGE);
         }
 
-        // 4. Keycloak 에서 삭제된 동일한 USER_ID 계정 삭제
-        userRepository.deleteUsersWithUnequalAuthId(userId, userAuthId);
-        return new ResultStatus(Constants.RESULT_STATUS_SUCCESS, Constants.USER_REGISTRATION_AVAILABLE_MESSAGE);
+        // 4. 등록된 SUPER-ADMIN 계정 없으며, 신규 SUPER-ADMIN 계정 생성 필요
+        // 넘어온 사용자 정보로 SUPER-ADMIN 권한 계정 생성 전, 이전 USER 권한으로 맵핑된 SA, RB 삭제를 위해 USER 맵핑 리스트 전달
+        List<Users> usersList = userRepository.getUsersListWithAuthId(userId, userAuthId, defaultNamespace);
+
+        // 5-1. KEYCLOAK 에서 삭제되었지만 남아있는 SUPER-ADMIN 계정 삭제
+        // 5-2. 신규 SUPER-ADMIN 등록 전 이전 USER 행 삭제
+        userRepository.deleteAllByUserType(Constants.AUTH_SUPER_ADMIN);
+        userRepository.deleteAllByUserIdAndUserAuthId(userId, userAuthId);
+
+        return new UsersList(usersList);
     }
 
 
@@ -450,26 +451,27 @@ public class UsersService {
      *
      * @return the resultStatus
      */
-    public ResultStatus getUserRegisterCheck(String userId, String userAuthId) {
+    public UsersList getUserRegisterCheck(String userId, String userAuthId) {
 
         // 1. 해당계정이 KEYCLOAK 에 등록된 계정인지 확인
         checkKeycloakUser(userId, userAuthId);
 
-        // 2. CP USER 에 등록된 계정인지 확인
+        // 2. CP 에 등록된 계정인지 확인
         Clusters clusters = clustersService.getHostClusters();
         List<Users> users = userRepository.findAllByClusterIdAndCpNamespaceAndUserIdAndUserAuthId(clusters.getClusterId(), defaultNamespace, userId, userAuthId);
-        UsersList usersList = new UsersList(users);
-
-        // 3. KEYCLOAK과 CP USER 사용자 비교 (동일한 USER-ID 이며, KEYCLOAK에서는 삭제된 계정 제외 처리
-        usersList = compareKeycloakUser(usersList);
-        if (usersList.getItems().size() > 0) {
-            // USER 계정 존재인 경우 메세지 반환 처리
+        if (users.size() > 0) {
+            // USER 계정 등록인 경우 메세지 반환 처리
             throw new ResultStatusException(Constants.USER_ALREADY_REGISTERED_MESSAGE);
         }
 
-        // 4. Keycloak 에서 삭제된 동일한 USER_ID 계정 삭제
+        // 3. 해당 USER-ID / USER-AUTH-ID 로 등록된 계정 없으며, 신규 등록 필요
+        // 넘어온 사용자 정보로 계정 생성 전, KEYCLOAK 에서 삭제되었지만 동일한 USER-ID 의 맵핑된 SA, RB 삭제를 위해 USER 맵핑 리스트 전달
+        List<Users> usersList = userRepository.getUsersListWithUnequalAuthId(userId, userAuthId, defaultNamespace);
+
+        // 4. USER-ID / USER-AUTH-ID 가 다른 행 삭제
         userRepository.deleteUsersWithUnequalAuthId(userId, userAuthId);
-        return new ResultStatus(Constants.RESULT_STATUS_SUCCESS, Constants.USER_REGISTRATION_AVAILABLE_MESSAGE);
+
+        return new UsersList(usersList);
     }
 
 
@@ -480,6 +482,7 @@ public class UsersService {
             throw new ResultStatusException(Constants.USER_NOT_REGISTERED_IN_KEYCLOAK_MESSAGE);
         }
     }
+
 
 
     /**
@@ -746,12 +749,38 @@ public class UsersService {
     /**
      * User가 사용하는 Clusters 목록 조회(Get Clusters List Used By User)
      *
-     * @return the clustersList
+     * @return the users list
      */
-    public UsersList getClustersListUsedByUser(String userId, String userAuthId) {
-        List<Object[]> list = userRepository.findClustersUsedByUser(Constants.HOST_CLUSTER_TYPE, defaultNamespace, userId, userAuthId);
-        UsersList usersList = new UsersList(list.stream().map(x -> new Users(x[0], x[1], x[2], x[3], x[4])).collect(Collectors.toList()));
+    public UsersList getClustersListUsedByUser(String userAuthId) {
+        List<Object[]> list = userRepository.findClustersUsedByUser(Constants.HOST_CLUSTER_TYPE, defaultNamespace, userAuthId);
+        UsersList usersList = new UsersList(list.stream().map(x -> new Users(x[0], x[1], x[2], x[3])).collect(Collectors.toList()));
         return (UsersList) commonService.setResultModel(usersList, Constants.RESULT_STATUS_SUCCESS);
+    }
+
+    /**
+     * Super Admin Clusters 목록 조회(Get Clusters List Used By Super Admin)
+     *
+     * @return the users list
+     */
+    public UsersList getClustersListUsedBySuperAdmin() {
+        ClustersList list = clustersService.getClustersList();
+        UsersList usersList = new UsersList(list.getItems().stream().map(x -> new Users(x.getClusterId(), x.getClusterName(), x.getClusterType(), Constants.AUTH_SUPER_ADMIN)).collect(Collectors.toList()));
+        return (UsersList) commonService.setResultModel(usersList, Constants.RESULT_STATUS_SUCCESS);
+    }
+
+
+
+    /**
+     * 클러스터에 따른 User Mapping 목록 조회 (Get User Mapping List By Cluster)
+     *
+     * @param cluster    the cluster
+     * @param userAuthId the userAuthId
+     * @return the users list
+     */
+    public UsersList getUserMappingListByCluster(String cluster, String userAuthId) {
+        UsersList usersList = new UsersList(userRepository.getUserMappingListByCluster(cluster, userAuthId, propertyService.getDefaultNamespace()));
+        usersList = compareKeycloakUser(usersList);
+        return usersList;
     }
 
 

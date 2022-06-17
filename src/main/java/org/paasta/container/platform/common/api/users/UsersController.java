@@ -194,43 +194,47 @@ public class UsersController {
     /**
      * Namespace 와 UserId로 Users 단 건 상세 조회(Get Users namespace userId detail)
      *
-     * @param cluster   the cluster
-     * @param namespace the namespace
-     * @param userId    the userId
+     * @param cluster    the cluster
+     * @param namespace  the namespace
+     * @param userAuthId the userAuthId
      * @return the users detail
      */
     @ApiOperation(value = "Namespace 와 UserId로 Users 단 건 상세 조회(Get Users namespace userId detail)", nickname = "getUsers")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "cluster", value = "클러스터 명", required = true, dataType = "String", paramType = "path"),
             @ApiImplicitParam(name = "namespace", value = "네임스페이스 명", required = true, dataType = "String", paramType = "path"),
-            @ApiImplicitParam(name = "userId", value = "User 아이디", required = true, dataType = "String", paramType = "path")
+            @ApiImplicitParam(name = "userAuthId", value = "User 인증 아이디", required = true, dataType = "String", paramType = "path")
     })
-    @GetMapping("/clusters/{cluster:.+}/namespaces/{namespace:.+}/users/{userId:.+}")
+    @GetMapping("/clusters/{cluster:.+}/namespaces/{namespace:.+}/users/{userAuthId:.+}")
     public Users getUsers(@PathVariable(value = "cluster") String cluster,
                           @PathVariable(value = "namespace") String namespace,
-                          @PathVariable(value = "userId") String userId,
+                          @PathVariable(value = "userAuthId") String userAuthId,
                           @RequestParam(required = false, name = "isCA", defaultValue = "false") String isCA) {
         if (isCA.equalsIgnoreCase(IS_ADMIN_TRUE)) {
-            return userService.getUsersByNamespaceAndUserIdAndUserType(namespace, userId, AUTH_CLUSTER_ADMIN);
+            return userService.getUsersByNamespaceAndUserIdAndUserType(namespace, userAuthId, AUTH_CLUSTER_ADMIN);
         }
 
-        return userService.getUsers(namespace, userId);
+        return userService.getUsers(cluster, namespace, userAuthId);
     }
 
 
-    /**
-     * 모든 Namespace 중 해당 사용자가 포함된 Users 목록 조회
-     *
-     * @param cluster the cluster
-     * @param userId  the usrId
-     * @return the users list
+    /*
      */
+/**
+ * 모든 Namespace 중 해당 사용자가 포함된 Users 목록 조회
+ *
+ * @param cluster the cluster
+ * @param userId  the usrId
+ * @return the users list
+ *//*
+
     @GetMapping("/clusters/{cluster:.+}/users/{userId:.+}")
     public UsersList getNamespaceListByUserId(@PathVariable(value = "cluster") String cluster,
                                               @PathVariable(value = "userId") String userId) {
         return userService.getNamespaceListByUserId(cluster, userId);
     }
 
+*/
 
     /**
      * Users 삭제(Delete Users)
@@ -472,9 +476,9 @@ public class UsersController {
             @ApiImplicitParam(name = "userType", value = "User Type", required = true, dataType = "String", paramType = "query")
     })
     @GetMapping("/userRegisterCheck")
-    public ResultStatus checkUserRegister(@RequestParam(required = false, defaultValue = "") String userId,
-                                          @RequestParam(required = false, defaultValue = "") String userAuthId,
-                                          @RequestParam(required = false, defaultValue = "") String userType) {
+    public UsersList checkUserRegister(@RequestParam(required = false, defaultValue = "") String userId,
+                                       @RequestParam(required = false, defaultValue = "") String userAuthId,
+                                       @RequestParam(required = false, defaultValue = "") String userType) {
 
         if (userType.equals(AUTH_SUPER_ADMIN)) {
             return userService.getSuperAdminRegisterCheck(userId, userAuthId);
@@ -506,10 +510,27 @@ public class UsersController {
      * @return the clustersList
      */
     @ApiOperation(value = "User가 사용하는 Clusters 목록 조회(Get Clusters List Used By User)", nickname = "getClustersListUsedByUser")
-    @GetMapping(value = "clusters/users/{userId:.+}/{userAuthId:.+}")
-    public UsersList getClustersListUsedByUser(@PathVariable String userId,
-                                               @PathVariable String userAuthId) {
-        return userService.getClustersListUsedByUser(userId, userAuthId);
+    @GetMapping(value = "/users/{userAuthId:.+}/clustersList")
+    public UsersList getClustersListUsedByUser(@PathVariable String userAuthId,
+                                               @RequestParam(required = false, defaultValue = "USER") String userType) {
+
+        if (userType.equals(AUTH_SUPER_ADMIN)) {
+            return userService.getClustersListUsedBySuperAdmin();
+        }
+        return userService.getClustersListUsedByUser(userAuthId);
+    }
+
+
+    /**
+     * 클러스터에 따른 User Mapping 목록 조회 (Get User Mapping List By Cluster)
+     *
+     * @return the usersList
+     */
+    @ApiOperation(value = "클러스터에 따른 User Mapping 목록 조회 (Get User Mapping List By Cluster)", nickname = "getUserMappingListByCluster")
+    @GetMapping(value = "/clusters/{cluster:.+}/users/{userAuthId:.+}")
+    public UsersList getUserMappingListByCluster(@PathVariable String cluster,
+                                                 @PathVariable String userAuthId) {
+        return userService.getUserMappingListByCluster(cluster, userAuthId);
     }
 
 

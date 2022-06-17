@@ -75,6 +75,8 @@ public class Users {
     private String isNsAdmin;
     @Transient
     private String clusterName;
+    @Transient
+    private String clusterType;
 
 
     @PrePersist
@@ -133,11 +135,10 @@ public class Users {
     }
 
 
-    public Users(Object clusterId, Object clusterName, Object userId, Object userAuthId, Object userType) {
+    public Users(Object clusterId, Object clusterName, Object clusterType, Object userType) {
         this.clusterId = (String) clusterId;
         this.clusterName = (String) clusterName;
-        this.userId = (String) userId;
-        this.userAuthId = (String) userAuthId;
+        this.clusterType = (String) clusterType;
         this.userType = (String) userType;
     }
 

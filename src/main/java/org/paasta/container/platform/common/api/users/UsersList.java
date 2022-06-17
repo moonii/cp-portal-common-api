@@ -1,6 +1,7 @@
 package org.paasta.container.platform.common.api.users;
 
 import lombok.Data;
+import org.paasta.container.platform.common.api.common.Constants;
 
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -33,6 +34,9 @@ public class UsersList {
     }
 
     public UsersList(List<Users> items) {
+        this.resultCode = Constants.RESULT_STATUS_SUCCESS;
         this.items = items;
     }
+
+
 }
