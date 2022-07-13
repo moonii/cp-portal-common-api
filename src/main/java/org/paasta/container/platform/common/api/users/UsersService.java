@@ -484,7 +484,6 @@ public class UsersService {
     }
 
 
-
     /**
      * Keycloak 사용자 목록 비교 (Compare keycloak user list)
      *
@@ -753,9 +752,10 @@ public class UsersService {
      */
     public UsersList getClustersListUsedByUser(String userAuthId) {
         List<Object[]> list = userRepository.findClustersUsedByUser(Constants.HOST_CLUSTER_TYPE, defaultNamespace, userAuthId);
-        UsersList usersList = new UsersList(list.stream().map(x -> new Users(x[0], x[1], x[2], x[3])).collect(Collectors.toList()));
+        UsersList usersList = new UsersList(list.stream().map(x -> new Users(x[0], x[1], x[2], x[3], x[4])).collect(Collectors.toList()));
         return (UsersList) commonService.setResultModel(usersList, Constants.RESULT_STATUS_SUCCESS);
     }
+
 
     /**
      * Super Admin Clusters 목록 조회(Get Clusters List Used By Super Admin)
@@ -764,10 +764,10 @@ public class UsersService {
      */
     public UsersList getClustersListUsedBySuperAdmin() {
         ClustersList list = clustersService.getClustersList();
-        UsersList usersList = new UsersList(list.getItems().stream().map(x -> new Users(x.getClusterId(), x.getName(), x.getClusterType(), Constants.AUTH_SUPER_ADMIN)).collect(Collectors.toList()));
+        UsersList usersList = new UsersList(list.getItems().stream().map(x -> new Users(x.getClusterId(), x.getName(), x.getClusterType(),
+                x.getProviderType(), Constants.AUTH_SUPER_ADMIN)).collect(Collectors.toList()));
         return (UsersList) commonService.setResultModel(usersList, Constants.RESULT_STATUS_SUCCESS);
     }
-
 
 
     /**

@@ -77,6 +77,8 @@ public class Users {
     private String clusterName;
     @Transient
     private String clusterType;
+    @Transient
+    private String clusterProviderType;
 
 
     @PrePersist
@@ -135,13 +137,13 @@ public class Users {
     }
 
 
-    public Users(Object clusterId, Object clusterName, Object clusterType, Object userType) {
+    public Users(Object clusterId, Object clusterName, Object clusterType, Object clusterProviderType, Object userType) {
         this.clusterId = (String) clusterId;
         this.clusterName = (String) clusterName;
         this.clusterType = (String) clusterType;
+        this.clusterProviderType = (String) clusterProviderType;
         this.userType = (String) userType;
     }
-
 
 
 /*
