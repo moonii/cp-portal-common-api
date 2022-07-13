@@ -1,4 +1,4 @@
-package org.paasta.container.platform.common.api.clusters;
+package org.paasta.container.platform.common.api.cloudAccounts;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
@@ -10,47 +10,55 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 /**
- * Clusters Model 클래스
+ * CloudAccounts Model 클래스
  *
- * @author kjhoon
+ * @author hkm
  * @version 1.0
- * @since 2022.05.31
+ * @since 2022.06.14
  **/
-@Entity
-@Table(name = "cp_clusters")
-@Data
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public class Clusters {
-    @Id
-    @Column(name = "cluster_id")
-    private String clusterId;
 
-    @Column(name = "cluster_api_url")
-    private String clusterApiUrl;
+@Entity
+@Table(name = "cp_cloud_accounts")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@Data
+public class CloudAccounts {
+
+    @Transient
+    private String resultCode;
+
+    @Transient
+    private String resultMessage;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private long id;
 
     @Column(name = "name")
     private String name;
 
-    @Column(name = "cluster_token", length = 2000)
-    private String clusterToken;
+    @Column(name = "provider")
+    private String provider;
 
-    @Column(name = "cluster_type")
-    private String clusterType;
+    @Column(name = "region")
+    private String region;
 
-    @Column(name = "provider_type")
-    private String providerType;
-
-    @Column(name = "description")
-    private String description;
+    @Column(name = "project")
+    private String project;
 
     @Column(name = "created", nullable = false, updatable = false)
     private String created;
 
-    @Column(name = "last_modified", nullable = false)
+    @Column(name = "last_modified", updatable = true)
     private String lastModified;
 
+    public CloudAccounts(String resultCode, String resultMessage) {
+        this.resultCode = resultCode;
+        this.resultMessage = resultMessage;
+    }
 
-
+    public CloudAccounts() {
+    }
 
     @PrePersist
     void preInsert() {
@@ -64,7 +72,7 @@ public class Clusters {
     }
 
     @PreUpdate
-    void preUpdate(){
-            this.lastModified = LocalDateTime.now(ZoneId.of(Constants.STRING_TIME_ZONE_ID)).format(DateTimeFormatter.ofPattern(Constants.STRING_DATE_TYPE));
-        }
+    void preUpdate() {
+        this.lastModified = LocalDateTime.now(ZoneId.of(Constants.STRING_TIME_ZONE_ID)).format(DateTimeFormatter.ofPattern(Constants.STRING_DATE_TYPE));
+    }
 }

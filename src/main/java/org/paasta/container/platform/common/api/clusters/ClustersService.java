@@ -51,15 +51,14 @@ public class ClustersService {
     }
 
     /**
-     * Clusters 정보 조회(Get Clusters List)
+     * Clusters 목록 조회(Get Clusters List)
      *
      * @return the clustersList
      */
     public ClustersList getClustersList() {
-        ClustersList clustersList = new ClustersList(clustersRepository.findAllByOrderByClusterName());
+        ClustersList clustersList = new ClustersList(clustersRepository.findAllByOrderByName());
         return (ClustersList) commonService.setResultModel(clustersList, Constants.RESULT_STATUS_SUCCESS);
     }
-
 
     /**
      * Host Clusters 정보 조회(Get Host Clusters Info)
@@ -70,5 +69,13 @@ public class ClustersService {
         return clustersRepository.findByClusterType(Constants.HOST_CLUSTER_TYPE);
     }
 
+    /**
+     * Clusters 정보 수정(Update Clusters Info)
+     *
+     * @return the clusters
+     */
+    public Clusters updateClusters(Clusters clusters) {
+        return clustersRepository.save(clusters);
+    }
 
 }
