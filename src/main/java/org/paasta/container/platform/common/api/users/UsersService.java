@@ -764,7 +764,7 @@ public class UsersService {
      */
     public UsersList getClustersListUsedBySuperAdmin() {
         ClustersList list = clustersService.getClustersList();
-        UsersList usersList = new UsersList(list.getItems().stream().map(x -> new Users(x.getClusterId(), x.getClusterName(), x.getClusterType(), Constants.AUTH_SUPER_ADMIN)).collect(Collectors.toList()));
+        UsersList usersList = new UsersList(list.getItems().stream().map(x -> new Users(x.getClusterId(), x.getName(), x.getClusterType(), Constants.AUTH_SUPER_ADMIN)).collect(Collectors.toList()));
         return (UsersList) commonService.setResultModel(usersList, Constants.RESULT_STATUS_SUCCESS);
     }
 

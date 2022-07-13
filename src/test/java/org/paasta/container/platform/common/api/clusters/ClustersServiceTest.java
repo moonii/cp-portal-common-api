@@ -5,6 +5,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.paasta.container.platform.common.api.common.CommonService;
+import org.paasta.container.platform.common.api.common.Constants;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -37,10 +39,17 @@ public class ClustersServiceTest {
     private static final String TOKEN_NAME = "cp_admin";
 
     private static Clusters createdCluster = null;
-    private static List<Clusters> clustersList = null;
+    private static ClustersList finalClustersList = null;
+    private static ArrayList<Clusters> clustersList = null;
+
+    private static Clusters finalHostCluster = null;
+
 
     @Mock
     ClustersRepository clustersRepository;
+
+    @Mock
+    CommonService commonService;
 
     @InjectMocks
     ClustersService clustersService;
@@ -48,8 +57,8 @@ public class ClustersServiceTest {
     @Before
     public void setUp() {
         createdCluster = new Clusters();
-        createdCluster.setId(1);
-        createdCluster.setClusterName(CLUSTER);
+        createdCluster.setClusterId(CLUSTER);
+        createdCluster.setName(CLUSTER);
         createdCluster.setClusterApiUrl(CLUSTER_API_URL);
         createdCluster.setClusterToken(CLUSTER_ADMIN_TOKEN);
         createdCluster.setCreated("2020-11-05 13:26:24");
@@ -57,12 +66,20 @@ public class ClustersServiceTest {
 
         clustersList = new ArrayList<>();
         clustersList.add(createdCluster);
+        finalClustersList = new ClustersList();
+        finalClustersList.setItems(clustersList);
+        finalClustersList.setResultCode(Constants.RESULT_STATUS_SUCCESS);
+
+        finalHostCluster = new Clusters();
+        finalHostCluster.setClusterType(Constants.HOST_CLUSTER_TYPE);
+
     }
 
     @Test
     public void createClusters() {
         Clusters clusters = new Clusters();
-        clusters.setClusterName(CLUSTER);
+        clusters.setName(CLUSTER);
+        clusters.setClusterId(CLUSTER);
         clusters.setClusterApiUrl(CLUSTER_API_URL);
         clusters.setClusterToken(CLUSTER_ADMIN_TOKEN);
 
@@ -74,9 +91,35 @@ public class ClustersServiceTest {
 
     @Test
     public void getClusters() {
-        when(clustersRepository.findAllByClusterName(CLUSTER)).thenReturn(clustersList);
+        when(clustersRepository.findByClusterId(CLUSTER)).thenReturn(createdCluster);
 
         Clusters finalCluster = clustersService.getClusters(CLUSTER);
         assertEquals(finalCluster, createdCluster);
+    }
+
+    @Test
+    public void getClustersList() {
+        when(clustersRepository.findAllByOrderByName()).thenReturn(clustersList);
+        ClustersList createdClustersList = new ClustersList();
+        createdClustersList.setItems(clustersList);
+        when(commonService.setResultModel(createdClustersList, Constants.RESULT_STATUS_SUCCESS)).thenReturn(finalClustersList);
+
+        ClustersList finalClusterList = clustersService.getClustersList();
+        assertEquals(finalClusterList, finalClustersList);
+
+    }
+
+    @Test
+    public void getHostClusters() {
+        when(clustersRepository.findByClusterType(Constants.HOST_CLUSTER_TYPE)).thenReturn(finalHostCluster);
+        assertEquals(finalHostCluster.getClusterType(), Constants.HOST_CLUSTER_TYPE);
+    }
+
+    @Test
+    public void updateClusters() {
+        when(clustersRepository.save(createdCluster)).thenReturn(createdCluster);
+
+        Clusters finalClusters = clustersService.updateClusters(createdCluster);
+        assertNotNull(finalClusters);
     }
 }

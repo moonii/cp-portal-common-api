@@ -38,7 +38,7 @@ public class ClustersController {
      */
     @ApiOperation(value="Clusters 정보 저장(Create Clusters Info)", nickname="createClusters")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "clusters", value = "클러스터 명", required = true, dataType = "String", paramType = "body")
+            @ApiImplicitParam(name = "clusters", value = "클러스터 명", required = true, dataType = "Clusters", paramType = "body")
     })
     @PostMapping
     public Clusters createClusters(@RequestBody Clusters clusters) {
@@ -72,4 +72,21 @@ public class ClustersController {
     public ClustersList getClustersList() {
         return clustersService.getClustersList();
     }
+
+
+    /**
+     * Clusters 정보 수정(Update Clusters Info)
+     *
+     * @return the clusters
+     */
+    @ApiOperation(value="Clusters 정보 수정(Create Clusters Info)", nickname="updateClusters")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "clusters", value = "클러스터 정보", required = true, dataType = "Clusters", paramType = "body")
+    })
+    @PutMapping
+    public Clusters updateClusters(@RequestBody Clusters clusters) {
+        return clustersService.updateClusters(clusters);
+    }
+
+
 }
