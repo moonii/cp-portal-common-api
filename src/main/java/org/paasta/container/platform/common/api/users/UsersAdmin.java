@@ -31,6 +31,7 @@ public class UsersAdmin {
     public String clusterName;
     public String clusterApiUrl;
     public String clusterToken;
+    public String clusterId;
 
 
 

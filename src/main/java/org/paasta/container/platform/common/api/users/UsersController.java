@@ -366,6 +366,23 @@ public class UsersController {
         return userService.getUserInfoDetails(userId, userType);
     }
 
+    /**
+     * 사용자 Cluster 정보 상세 조회(Get user cluster info details)
+     *
+     * @return the usersList
+     */
+    @ApiOperation(value = "사용자 상세 조회(Get user cluster info details)", nickname = "getUserClusterInfoDetails")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "userId", value = "사용자 아이디", required = false, dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "userType", value = "사용자 타입", required = false, dataType = "String", paramType = "query")
+    })
+    @GetMapping(value = "/cluster/all/info/user/details")
+    public Object getUserAuthInfoDetails(@RequestParam(required = true) String userAuthId,
+                                         @RequestParam(required = true) String userType) {
+
+        return userService.getUserAuthInfoDetails(userAuthId, userType);
+    }
+
 
     /**
      * 네임스페이스 관리자 체크 조회 (Get user list whether user is namespace admin or not)

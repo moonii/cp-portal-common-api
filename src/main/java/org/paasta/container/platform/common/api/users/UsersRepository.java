@@ -90,6 +90,7 @@ public interface UsersRepository extends JpaRepository<Users, Long>, JpaSpecific
     void deleteAllByUserIdAndUserType(String userId, String userType);
 
     List<Users> findAllByCpNamespaceAndUserIdAndUserType(String namespace, String userId, String userType);
+    List<Users> findAllByCpNamespaceAndUserAuthIdAndUserType(String namespace, String userAuthId, String userType);
 
     List<Users> findAllByCpNamespaceAndUserId(String namespace, String userId);
 
@@ -175,4 +176,17 @@ public interface UsersRepository extends JpaRepository<Users, Long>, JpaSpecific
     void deleteAllByUserType(String userType);
 
     void deleteAllByUserIdAndUserAuthId(String userId, String userAuthId);
+
+
+
+    /*@Query(value =
+            "SELECT cp_users.user_id, cp_users.user_type, cp_users.namespace, cp_clusters.cluster_id, cp_clusters.cluster_api_url " +
+                    "FROM cp_users " +
+                    "INNER JOIN cp_clusters ON cp_users.cluster_id = cp_clusters.cluster_id " +
+                    "WHERE cp_users.user_id = :userId AND cp_users.user_type = :userType ;", nativeQuery = true)
+    List<Object[]> findUserAuthId(@Param("userId") String userId, @Param("userType") String userType);*/
+
+
+    @Query(value ="SELECT * FROM cp_users WHERE user_auth_id= :userAuthId AND user_type= :userType", nativeQuery = true)
+    List<Object[]> findUserAuthId(@Param("userAuthId") String userId, @Param("userType") String userType);
 }
