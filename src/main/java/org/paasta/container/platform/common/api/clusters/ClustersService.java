@@ -3,6 +3,7 @@ package org.paasta.container.platform.common.api.clusters;
 import org.paasta.container.platform.common.api.common.CommonService;
 import org.paasta.container.platform.common.api.common.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class ClustersService {
 
+    @Value("${cp.defaultNamespace}")
+    private String defaultNamespace;
     private final CommonService commonService;
     private final ClustersRepository clustersRepository;
 
@@ -57,6 +60,11 @@ public class ClustersService {
      */
     public ClustersList getClustersList() {
         ClustersList clustersList = new ClustersList(clustersRepository.findAllByOrderByName());
+        return (ClustersList) commonService.setResultModel(clustersList, Constants.RESULT_STATUS_SUCCESS);
+    }
+
+    public ClustersList getClustersListByUser(String userAuthId) {
+        ClustersList clustersList = new ClustersList(clustersRepository.findClustersUsedByUser(Constants.HOST_CLUSTER_TYPE, defaultNamespace, userAuthId));
         return (ClustersList) commonService.setResultModel(clustersList, Constants.RESULT_STATUS_SUCCESS);
     }
 
