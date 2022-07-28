@@ -3,6 +3,7 @@ package org.paasta.container.platform.common.api.clusters;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.paasta.container.platform.common.api.common.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -73,6 +74,20 @@ public class ClustersController {
         return clustersService.getClustersList();
     }
 
+
+    /**
+     * 클러스터에 따른 User Mapping 목록 조회 (Get User Mapping List By Cluster)
+     *
+     * @return the usersList
+     */
+    @ApiOperation(value = "유저 별 목록 조회 (Get Clusters List by User)", nickname = "getUserMappingListByCluster")
+    @GetMapping(value = "/users/{userAuthId:.+}")
+    public ClustersList getClustersListByUser(@PathVariable String userAuthId, @RequestParam(required = false, defaultValue = "USER") String userType) {
+        if (userType.equals(Constants.AUTH_SUPER_ADMIN)) {
+            return clustersService.getClustersList();
+        }
+        else return clustersService.getClustersListByUser(userAuthId);
+    }
 
     /**
      * Clusters 정보 수정(Update Clusters Info)

@@ -1,6 +1,8 @@
 package org.paasta.container.platform.common.api.clusters;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,5 +23,13 @@ public interface ClustersRepository extends JpaRepository<Clusters, Long> {
     List<Clusters> findAllByOrderByName();
 
     Clusters findByClusterType(String clusterType);
+
+    @Query(value = "SELECT DISTINCT b.*" +
+            "FROM cp_users a, cp_clusters b " +
+            "WHERE a.cluster_id = b.cluster_id " +
+            "AND NOT (b.cluster_type = :clusterType AND a.namespace = :namespace ) " +
+            "AND a.user_auth_id = :userAuthId " +
+            "ORDER BY b.name; ", nativeQuery = true)
+    List<Clusters> findClustersUsedByUser(@Param("clusterType") String clusterType, @Param("namespace") String namespace, @Param("userAuthId") String userAuthId);
 
 }
