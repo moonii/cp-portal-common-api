@@ -1,5 +1,6 @@
 package org.paasta.container.platform.common.api.users;
 
+import org.apache.catalina.User;
 import org.paasta.container.platform.common.api.clusters.Clusters;
 import org.paasta.container.platform.common.api.clusters.ClustersList;
 import org.paasta.container.platform.common.api.clusters.ClustersService;
@@ -665,67 +666,24 @@ public class UsersService {
 
     }
 
-    /**
-     * 수정해야함
-     * 사용자 클러스트 상세 조회(Get user info details)
+
+    /*
+     * 하나의 Cluster 내 여러 Namespace 에 속한 User 에 대한 상세 조회(Get Users Access Info)
      *
      * @return the usersList
      */
-    public UsersAdmin getUserAuthInfoDetails(String userAuthId, String userType) {
+    public Object getUsersAccessInfo(String userAuthId, String cluster, String namespace) {
 
         UsersList usersList = new UsersList();
-        UsersAdmin returnUserAdmin = null;
+        //UsersAdmin returnUserAdmin = null;
 
-        Users userInfo = userRepository.findAllByCpNamespaceAndUserAuthIdAndUserType(propertyService.getDefaultNamespace(), userAuthId, userType).get(0);
+        List<Object[]> listUser = userRepository.findAllByCpNamespaceAndUserAuthIdAndUserType(userAuthId, cluster, namespace);
+        List<Users> resultLIst = new ArrayList<>();
 
+        resultLIst = listUser.stream().map(x -> new Users(x[0], x[1], x[2], x[3], x[4], x[5])).collect(Collectors.toList());
+        usersList.setItems(resultLIst);
 
-        // 1.mapping된 namespace & role , created 날짜 temp namespace로 join 한 리스트
-        List<Object[]> listUser = userRepository.findAllByUserMappingNamespaceAndRoleDetails(propertyService.getDefaultNamespace(), userAuthId, userType);
-
-        if (listUser.size() < 1) {
-            // 네임스페이스와 맵핑되지 않은 사용자
-            returnUserAdmin = new UsersAdmin(Constants.USER_NOT_MAPPED_TO_THE_NAMESPACE_MESSAGE, userInfo.getUserId(), userInfo.getUserAuthId(),
-                    userInfo.getServiceAccountName(), userInfo.getCreated(), null);
-
-        } else {
-            // 네임스페이스와 맵핑된 사용자
-            // 2. Users 객체 형태로 변환
-            List<Users> usersAdminMetaList = listUser.stream().map(x -> new Users(x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7], x[8], x[9])).collect(Collectors.toList());
-
-            // 3. Keycloak 사용자 비교처리
-            usersList.setItems(usersAdminMetaList);
-            usersList = compareKeycloakUser(usersList);
-
-            // 3-1. keycloak 비교처리 후 네임스페이스와 맵핑되지 않은 사용자
-            if (usersList.getItems().size() < 1) {
-                returnUserAdmin = new UsersAdmin(Constants.USER_NOT_MAPPED_TO_THE_NAMESPACE_MESSAGE, userInfo.getUserId(), userInfo.getUserAuthId(),
-                        userInfo.getServiceAccountName(), userInfo.getCreated(), null);
-            } else {
-
-                List<UsersAdminMetaData> metaDataList = new ArrayList<>();
-
-                //4. MetaData Model 형식으로 리스트 변환
-                for (Users users : usersList.getItems()) {
-                    UsersAdminMetaData usersAdminMetaData = new UsersAdminMetaData(users.getCpNamespace(), users.getUserType(), users.getRoleSetCode(), users.getSaSecret());
-                    metaDataList.add(usersAdminMetaData);
-                }
-
-                returnUserAdmin = new UsersAdmin(CommonStatusCode.OK.getMsg(), userInfo.getUserId(), userInfo.getUserAuthId(),
-                        userInfo.getServiceAccountName(), userInfo.getCreated(), metaDataList);
-
-            }
-        }
-
-        //5. 클러스터 관리자의 경우 클러스터 정보 셋팅
-     /*   if(userType.equalsIgnoreCase(Constants.AUTH_CLUSTER_ADMIN)) {
-            returnUserAdmin.setClusterName(userInfo.getClusterName());
-            returnUserAdmin.setClusterApiUrl(userInfo.getClusterApiUrl());
-            returnUserAdmin.setClusterToken(userInfo.getClusterToken());
-        }
-*/
-
-        return (UsersAdmin) commonService.setResultModel(returnUserAdmin, Constants.RESULT_STATUS_SUCCESS);
-
+        return commonService.setResultModel(usersList, Constants.RESULT_STATUS_SUCCESS);
 
     }
 

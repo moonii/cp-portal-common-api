@@ -146,7 +146,16 @@ public class Users {
     }
 
 
-/*
+    public Users(Object clusterId, Object userId, Object userAuthId, Object cpNamespace, Object userType, Object roleSetCode) {
+        this.clusterId = (String) clusterId;
+        this.userId = (String) userId;
+        this.userAuthId = (String) userAuthId;
+        this.cpNamespace = (String) cpNamespace;
+        this.userType = (String) userType;
+        this.roleSetCode = (String) roleSetCode;
+    }
+
+    /*
     public Users(Object id, Object userId, Object userAuthId, Object serviceAccountName, Object cpNamespace, Object roleSetCode, Object userType, Object created) {
         this.id =  Integer.parseInt(String.valueOf(id));
         this.userId = (String) userId;

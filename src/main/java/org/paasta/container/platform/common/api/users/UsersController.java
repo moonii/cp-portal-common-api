@@ -366,21 +366,24 @@ public class UsersController {
         return userService.getUserInfoDetails(userId, userType);
     }
 
-    /**
-     * 사용자 Cluster 정보 상세 조회(Get user cluster info details)
+    /*
+     * 하나의 Cluster 내 여러 Namespace 에 속한 User 에 대한 상세 조회(Get Users Access Info)
      *
      * @return the usersList
      */
-    @ApiOperation(value = "사용자 상세 조회(Get user cluster info details)", nickname = "getUserClusterInfoDetails")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "userId", value = "사용자 아이디", required = false, dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "userType", value = "사용자 타입", required = false, dataType = "String", paramType = "query")
-    })
-    @GetMapping(value = "/cluster/all/info/user/details")
-    public Object getUserAuthInfoDetails(@RequestParam(required = true) String userAuthId,
-                                         @RequestParam(required = true) String userType) {
 
-        return userService.getUserAuthInfoDetails(userAuthId, userType);
+    @ApiOperation(value = "하나의 Cluster 내 여러 Namespace 에 속한 User 에 대한 상세 조회(Get Users Access Info)", nickname = "getUsersAccessInfo")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "userAuthId", value = "사용자 인증 아이디", required = false, dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "cluster", value = "클러스터", required = false, dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "namespace", value = "네임스페이스", required = false, dataType = "String", paramType = "query")
+    })
+    @GetMapping(value = "/cluster/info/all/user/details")
+    public Object getUsersAccessInfo(@RequestParam(required = true) String userAuthId,
+                                         @RequestParam(required = true) String cluster,
+                                         @RequestParam(required = true) String namespace) {
+
+        return userService.getUsersAccessInfo(userAuthId, cluster, namespace);
     }
 
 
