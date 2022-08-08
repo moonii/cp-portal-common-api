@@ -677,11 +677,26 @@ public class UsersService {
         UsersList usersList = new UsersList();
         //UsersAdmin returnUserAdmin = null;
 
-        List<Object[]> listUser = userRepository.findAllByCpNamespaceAndUserAuthIdAndUserType(userAuthId, cluster, namespace);
+        List<Object[]> listUser = userRepository.findAllByClusterIdAndUserAuthId(userAuthId, cluster);
         List<Users> resultLIst = new ArrayList<>();
 
         resultLIst = listUser.stream().map(x -> new Users(x[0], x[1], x[2], x[3], x[4], x[5])).collect(Collectors.toList());
-        usersList.setItems(resultLIst);
+
+        for (int i = 0; i <= resultLIst.size() -1; i++) {
+            if (resultLIst.get(i).getUserType().equals("SUPER_ADMIN")) {
+                usersList.setItems(resultLIst);
+                break;
+            } else if (resultLIst.get(i).getUserType().equals("CLUSTER_ADMIN")) {
+                usersList.setItems(resultLIst);
+                break;
+            } else if (resultLIst.get(i).getUserType().equals("USER")) {
+                if (!resultLIst.get(i).getCpNamespace().equals(namespace)) {
+                    resultLIst.remove(i);
+                    usersList.setItems(resultLIst);
+                    break;
+                }
+            }
+        }
 
         return commonService.setResultModel(usersList, Constants.RESULT_STATUS_SUCCESS);
 

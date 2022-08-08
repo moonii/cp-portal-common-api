@@ -19,6 +19,10 @@ public class UsersList {
     private String resultCode;
     private String resultMessage;
 
+    public String clusterApiUrl;
+    public String clusterId;
+    public String clusterToken;
+
 
     @Column(name = "items")
     @ElementCollection(targetClass = String.class)

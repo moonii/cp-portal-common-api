@@ -91,11 +91,8 @@ public interface UsersRepository extends JpaRepository<Users, Long>, JpaSpecific
 
     List<Users> findAllByCpNamespaceAndUserIdAndUserType(String namespace, String userId, String userType);
 
-    /*@Query(value = "select * from cp_users where namespace = :namespace and user_auth_id = :userAuthId and user_type = :userType ;", nativeQuery = true)
-    List<Object[]> findAllByCpNamespaceAndUserAuthIdAndUserType(@Param("namespace")  String namespace, @Param("userAuthId") String userAuthId, @Param("userType") String userType);*/
-
-    @Query(value = "select cluster_id, user_id, user_auth_id, namespace, user_type, role_set_code from cp_users where cluster_id = :clusterId and namespace = :namespace and user_auth_id = :userAuthId", nativeQuery = true)
-    List<Object[]> findAllByCpNamespaceAndUserAuthIdAndUserType(@Param("userAuthId") String userAuthId, @Param("clusterId") String clusterId, @Param("namespace") String namespace);
+    @Query(value = "select cluster_id, user_id, user_auth_id, namespace, user_type, role_set_code from cp_users where cluster_id = :clusterId and user_auth_id = :userAuthId", nativeQuery = true)
+    List<Object[]> findAllByClusterIdAndUserAuthId(@Param("userAuthId") String userAuthId, @Param("clusterId") String clusterId);
 
     List<Users> findAllByCpNamespaceAndUserId(String namespace, String userId);
 
