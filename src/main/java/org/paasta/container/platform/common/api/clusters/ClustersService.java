@@ -83,7 +83,12 @@ public class ClustersService {
      * @return the clusters
      */
     public Clusters updateClusters(Clusters clusters) {
-        return clustersRepository.save(clusters);
+        Clusters target = clustersRepository.findByClusterId(clusters.getClusterId());
+        if(!clusters.getName().equals(target.getName()))target.setName(clusters.getName());
+        if(!clusters.getDescription().equals(target.getDescription()))target.setDescription(clusters.getDescription());
+        target = clustersRepository.save(target);
+
+        return (Clusters) commonService.setResultModel(target, Constants.RESULT_STATUS_SUCCESS);
     }
 
 }

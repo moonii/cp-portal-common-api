@@ -25,14 +25,14 @@ public class Clusters {
     @Column(name = "cluster_id")
     private String clusterId;
 
-    @Column(name = "cluster_api_url")
-    private String clusterApiUrl;
+//    @Column(name = "cluster_api_url")
+//    private String clusterApiUrl;
 
     @Column(name = "name")
     private String name;
 
-    @Column(name = "cluster_token", length = 2000)
-    private String clusterToken;
+//    @Column(name = "cluster_token", length = 2000)
+//    private String clusterToken;
 
     @Column(name = "cluster_type")
     private String clusterType;
@@ -49,6 +49,8 @@ public class Clusters {
     @Column(name = "last_modified", nullable = false)
     private String lastModified;
 
+    @Column(name = "status", length = 1)
+    private String status;
 
 
 
