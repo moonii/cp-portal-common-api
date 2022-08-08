@@ -62,6 +62,10 @@ public class Constants {
     public static final String USER_REGISTRATION_AVAILABLE_MESSAGE = "USER_REGISTRATION_AVAILABLE";
     public static final String DATA_NOT_FOUND_MESSAGE = "DATA_NOT_FOUND";
 
+    public static final String CLUSTER_STATUS_ACTIVE = "A";
+    public static final String CLUSTER_STATUS_CREATING = "C";
+    public static final String CLUSTER_STATUS_DISABLED_ = "D";
+
     public static final ErrorMessage NOT_FOUND_RESULT_STATUS =
             new ErrorMessage(Constants.RESULT_STATUS_FAIL, CommonErrCode.NOT_FOUND.name(), CommonErrCode.NOT_FOUND.getErrCode(),CommonErrCode.NOT_FOUND.name());
 

@@ -98,7 +98,7 @@ public class ClustersController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "clusters", value = "클러스터 정보", required = true, dataType = "Clusters", paramType = "body")
     })
-    @PutMapping
+    @PatchMapping
     public Clusters updateClusters(@RequestBody Clusters clusters) {
         return clustersService.updateClusters(clusters);
     }

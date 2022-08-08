@@ -98,8 +98,8 @@ public class CloudAccountsService {
         CloudAccounts target = new CloudAccounts();
         try {
             target = cloudAccountsRepository.findById(cloudAccounts.getId()).orElseThrow(NullPointerException::new);
-            target = cloudAccountsRepository.save(target);
             target.setName(cloudAccounts.getName());
+            target = cloudAccountsRepository.save(target);
         } catch (Exception e) {
             target.setResultMessage(e.getMessage());
             return (CloudAccounts) commonService.setResultModel(target, Constants.RESULT_STATUS_FAIL);
