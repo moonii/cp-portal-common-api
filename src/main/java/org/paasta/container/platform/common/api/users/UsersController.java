@@ -4,6 +4,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.paasta.container.platform.common.api.common.Constants;
 import org.paasta.container.platform.common.api.common.ResultStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -108,22 +109,23 @@ public class UsersController {
      * @param cluster    the cluster
      * @param searchName the searchName
      * @return the users list
+     * 개발 0809 사용자 목록조회 -active
      */
     @ApiOperation(value = "Admin Portal 활성화 여부에 따른 사용자 목록 조회(Get Users list of admin portal)", nickname = "getUsersListAllByCluster")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "searchParam", value = "검색 조건", required = true, dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "searchParam", value = "검색 조건", required = true, dataType = "String", paramType = "query")
     })
-    @GetMapping(value = "/clusters/{cluster:.+}/users")
-    public UsersAdminList getUsersListAllByCluster(@PathVariable(value = "cluster") String cluster,
-                                                   @RequestParam(required = false, defaultValue = "") String searchName,
-                                                   @RequestParam(required = false, defaultValue = "true") String isActive) {
-        if (isActive.equalsIgnoreCase(IS_ADMIN_FALSE)) {
+    @GetMapping(value = "/clusters/{cluster:.+}/namespaces/{namespace:.+}/usersList")
+    public UsersDetailsList getUsersListAllByCluster(@PathVariable(value = "cluster") String cluster,
+                                                     @PathVariable(value = "namespace") String namespace,
+                                                     @RequestParam(required = false, defaultValue = "") String searchName,
+                                                     @RequestParam(required = false, defaultValue = "true") String isActive) {
+       if (isActive.equalsIgnoreCase(IS_ADMIN_FALSE)) {
             // 비활성화 사용자인 경우
-            return userService.getInActiveUsersList(searchName);
+            return userService.getInActiveUsersList(cluster, searchName);
         }
-
-        return userService.getActiveUsersList(searchName);
+        return userService.getActiveUsersList(cluster, namespace, searchName);
     }
 
 
@@ -333,25 +335,9 @@ public class UsersController {
 
     //// keycloak 이후로 추가
 
-
-    /**
-     * 클러스터 관리자 계정 상세 조회(Get cluster admin info)
-     *
-     * @return the usersList
-     */
-    @ApiOperation(value = "클러스터 관리자 계정 조회(Get cluster admin info)", nickname = "getClusterAdminInfoDetails")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "searchName", value = "userId 검색", required = false, dataType = "String", paramType = "query")
-    })
-    @GetMapping(value = "/cluster/all/admin/info")
-    public UsersList getClusterAdminInfoDetails(@RequestParam(required = false, defaultValue = "") String searchName) {
-        return userService.getClusterAdminInfo(searchName);
-    }
-
-
     /**
      * 사용자 상세 조회(Get user info details)
-     *
+     * 개발 0811 상세 정보
      * @return the usersList
      */
     @ApiOperation(value = "사용자 상세 조회(Get user info details)", nickname = "getUserInfoDetails")
@@ -359,11 +345,14 @@ public class UsersController {
             @ApiImplicitParam(name = "userId", value = "사용자 아이디", required = false, dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "userType", value = "사용자 타입", required = false, dataType = "String", paramType = "query")
     })
-    @GetMapping(value = "/cluster/all/user/details")
-    public UsersAdmin getUserInfoDetails(@RequestParam(required = true) String userId,
-                                         @RequestParam(required = true) String userType) {
-
-        return userService.getUserInfoDetails(userId, userType);
+    @GetMapping(value = "/clusters/{cluster:.+}/users/{userAuthId:.+}/details")
+    public UsersDetails getUserInfoDetails(@PathVariable(value = "cluster") String cluster,
+                                           @PathVariable(value = "userAuthId") String userAuthId,
+                                           @RequestParam(required = false, defaultValue = "") String userType){
+        if(userType.equalsIgnoreCase(AUTH_CLUSTER_ADMIN)){
+            return userService.getClusterAdminDetails(cluster,userAuthId);
+        }
+        return userService.getUsersMappingDetails(cluster, userAuthId);
     }
 
     /*
@@ -554,5 +543,39 @@ public class UsersController {
     }
 
 
+    // 클러스터 관리자////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /**
+     * 클러스터 관리자 생성 (Create Cluster Admin)
+     *
+     * @return the usersList
+     */
+    @ApiOperation(value = "클러스터 관리자 생성 (Create Cluster Admin)", nickname = "createClusterAdmin")
+    @PostMapping(value = "/clusterAdmin")
+    public ResultStatus createClusterAdmin(@RequestBody Users users) {
+        return userService.createClusterAdmin(users);
+    }
+
+
+    /**
+     * 클러스터 관리자 목록 조회(Get Cluster Admin List) - 사용
+     * 개발 0809 클러스터 관리자 목록 (완)
+     * @return the usersList
+     */
+    @ApiOperation(value = "클러스터 관리자 목록 조회(Get Cluster Admin List)", nickname = "getClusterAdminList")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "searchName", value = "userId 검색", required = false, dataType = "String", paramType = "query")
+    })
+    @GetMapping(value = "/cluster/{cluster:.+}/admin")
+    public UsersList getClusterAdminList(@PathVariable String cluster,
+                                         @RequestParam(required = false, defaultValue = "") String searchName) {
+        return userService.getClusterAdminList(cluster, searchName);
+    }
+
+
+/*    @GetMapping(value = "/user/test")
+    public Object getTest(@RequestParam(required = false, defaultValue = "") String cluster,
+                          @RequestParam(required = false, defaultValue = "") String searchName){
+        return userService.getActiveUsersLisNew(cluster, searchName);
+    }*/
 }
 

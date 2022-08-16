@@ -118,10 +118,6 @@ public interface UsersRepository extends JpaRepository<Users, Long>, JpaSpecific
     List<Object[]> findAllByUserMappingNamespaceAndRoleDetails(@Param("namespace") String namespace, @Param("userId") String userId, @Param("userType") String userType);
 
 
-    @Query(value = "select * from cp_users where user_type = :userType and user_id like %:searchParam%", nativeQuery = true)
-    List<Users> findAllByUserTypeAndLikeUserId(@Param("userType") String userType, @Param("searchParam") String searchParam);
-
-
     @Query(value =
             "select a.user_id, a.user_auth_id, if(isnull(b.user_id), 'N', 'Y') as is_nsadmin" +
                     " from" +
@@ -179,8 +175,50 @@ public interface UsersRepository extends JpaRepository<Users, Long>, JpaSpecific
 
     void deleteAllByUserIdAndUserAuthId(String userId, String userAuthId);
 
+    @Query(value = "DELETE FROM cp_users "+
+            "WHERE cluster_id = :clusterId AND user_auth_id = :userAuthId AND namespace NOT IN (:defaultNamespace)", nativeQuery = true)
+    void deleteUserMappingListByCluster(@Param("clusterId") String clusterId, @Param("userAuthId") String userAuthId,  @Param("defaultNamespace") String defaultNamespace);
 
 
+
+
+
+    @Query(value = "select * from cp_users where cluster_id = :clusterId  AND user_type = :userType AND user_id like %:searchParam%", nativeQuery = true)
+    List<Users> findByClusterIdAndUserTypeAndLikeUserId(@Param("clusterId") String clusterId, @Param("userType") String userType, @Param("searchParam") String searchParam);
+
+    @Query(value = "SELECT a.* FROM cp_users a, cp_clusters b " +
+                   "WHERE a.cluster_id = b.cluster_id "+
+                   "AND b.cluster_type = :clusterType "+
+                   "AND a.user_auth_id = :userAuthId " +
+                   "AND a.namespace = :defaultNamespace " +
+                   "AND a.user_type = :userType" , nativeQuery = true)
+    List<Users> getUsersDefaultInfo(@Param("clusterType") String clusterType, @Param("userAuthId") String userAuthId,
+                                    @Param("defaultNamespace") String defaultNamespace, @Param("userType") String userType);
+
+
+
+    @Query(value = "SELECT a.id, a.user_id, a.user_auth_id, a.service_account_name, a.namespace, a.user_type, a.role_set_code, b.created FROM " +
+            "(SELECT * FROM cp_users WHERE cluster_id = :cluster AND namespace != :defaultNamespace AND user_type = :authUser) a, "+
+            "(SELECT user_auth_id, MIN(created) as created FROM cp_users GROUP BY user_auth_id) b "+
+            "WHERE a.user_auth_id = b.user_auth_id " +
+            "AND a.user_id LIKE %:searchParam% " +
+            "ORDER BY b.created DESC", nativeQuery = true)
+    List<Object[]> getUsersListByCluster(@Param("cluster") String cluster, @Param("defaultNamespace") String defaultNamespace, @Param("authUser") String authUser, @Param("searchParam") String searchParam);
+
+
+
+
+    @Query(value = "SELECT a.* FROM  cp_users a, cp_clusters b " +
+            "WHERE a.cluster_Id = b.cluster_id  AND b.cluster_type = :clusterType AND a.namespace = :defaultNamespace AND a.user_type = :authUser " +
+            "AND a.user_auth_id NOT IN (" +
+            "SELECT user_auth_id FROM cp_users WHERE cluster_id = :cluster AND namespace != :defaultNamespace AND user_type = :authUser " +
+            "UNION ALL SELECT user_auth_id FROM cp_users WHERE cluster_id = :cluster AND user_type = :authClusterAdmin ) " +
+            "AND a.user_id LIKE %:searchParam% ", nativeQuery = true)
+    List<Users>  getInactiveUsersListByCluster(@Param("clusterType") String clusterType, @Param("cluster") String cluster, @Param("defaultNamespace") String defaultNamespace,
+                                                @Param("authClusterAdmin") String authClusterAdmin, @Param("authUser") String authUser, @Param("searchParam") String searchParam);
+
+
+    List<Users> findAllByClusterIdAndUserTypeAndUserAuthId(String clusterId, String userType, String userAuthId);
     /*@Query(value =
             "SELECT cp_users.user_id, cp_users.user_type, cp_users.namespace, cp_clusters.cluster_id, cp_clusters.cluster_api_url " +
                     "FROM cp_users " +
@@ -191,4 +229,8 @@ public interface UsersRepository extends JpaRepository<Users, Long>, JpaSpecific
 
     @Query(value ="SELECT * FROM cp_users WHERE user_auth_id= :userAuthId AND user_type= :userType", nativeQuery = true)
     List<Object[]> findUserAuthId(@Param("userAuthId") String userId, @Param("userType") String userType);
+
+
+
+
 }

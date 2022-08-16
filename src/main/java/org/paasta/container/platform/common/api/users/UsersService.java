@@ -1,6 +1,5 @@
 package org.paasta.container.platform.common.api.users;
 
-import org.apache.catalina.User;
 import org.paasta.container.platform.common.api.clusters.Clusters;
 import org.paasta.container.platform.common.api.clusters.ClustersList;
 import org.paasta.container.platform.common.api.clusters.ClustersService;
@@ -17,10 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -337,12 +333,14 @@ public class UsersService {
     }
 
 
-    /**
+    /*  *//**
      * Admin Portal 활성화 사용자 목록 조회 (Get active users list of admin portal)
+     * <p>
+     * * 개발 0809 사용자 목록조회 -active
      *
      * @return the users list
-     */
-    public UsersAdminList getActiveUsersList(String searchName) {
+     *//*
+    public UsersAdminList getActiveUsersList(String cluster, String searchName) {
 
         UsersList usersList = new UsersList();
         // 1. temp-namespace 제외, 클러스터 관리자 id 제외, created 날짜 temp namespace로 join 한 리스트
@@ -380,7 +378,7 @@ public class UsersService {
         returnList.setItems(usersAdminList);
 
         return (UsersAdminList) commonService.setResultModel(returnList, Constants.RESULT_STATUS_SUCCESS);
-    }
+    }*/
 
 
     /**
@@ -533,11 +531,14 @@ public class UsersService {
     }
 
 
-    /**
-     * 클러스터 관리자 계정 조회(Get cluster admin info)
-     *
-     * @return the usersList
+    /*
      */
+/**
+ * 클러스터 관리자 계정 조회(Get cluster admin info)
+ *
+ * @return the usersList
+ *//*
+
     public UsersList getClusterAdminInfo(String searchName) {
         List<Users> clusterAdmin = userRepository.findAllByUserTypeAndLikeUserId(Constants.AUTH_CLUSTER_ADMIN, searchName.trim());
 
@@ -553,6 +554,7 @@ public class UsersService {
 
         return returnCA;
     }
+*/
 
 
     /**
@@ -574,11 +576,11 @@ public class UsersService {
     }
 
 
-    /**
+    /*  *//**
      * Admin Portal 비활성화 사용자 목록 조회(Get Inactive Users list of admin portal)
      *
      * @return the users list
-     */
+     *//*
     public UsersAdminList getInActiveUsersList(String searchName) {
 
         UsersList usersList = new UsersList();
@@ -599,15 +601,17 @@ public class UsersService {
         usersAdminList.setItems(items);
 
         return (UsersAdminList) commonService.setResultModel(usersAdminList, Constants.RESULT_STATUS_SUCCESS);
-    }
+    }*/
 
+
+    /*   */
 
     /**
      * 수정해야함
      * 사용자 상세 조회(Get user info details)
      *
      * @return the usersList
-     */
+     *//*
     public UsersAdmin getUserInfoDetails(String userId, String userType) {
 
         UsersList usersList = new UsersList();
@@ -654,18 +658,18 @@ public class UsersService {
         }
 
         //5. 클러스터 관리자의 경우 클러스터 정보 셋팅
-     /*   if(userType.equalsIgnoreCase(Constants.AUTH_CLUSTER_ADMIN)) {
+     *//*   if(userType.equalsIgnoreCase(Constants.AUTH_CLUSTER_ADMIN)) {
             returnUserAdmin.setClusterName(userInfo.getClusterName());
             returnUserAdmin.setClusterApiUrl(userInfo.getClusterApiUrl());
             returnUserAdmin.setClusterToken(userInfo.getClusterToken());
         }
-*/
+*//*
 
         return (UsersAdmin) commonService.setResultModel(returnUserAdmin, Constants.RESULT_STATUS_SUCCESS);
 
 
     }
-
+*/
 
     /*
      * 하나의 Cluster 내 여러 Namespace 에 속한 User 에 대한 상세 조회(Get Users Access Info)
@@ -820,5 +824,146 @@ public class UsersService {
         return usersList;
     }
 
+
+    ///////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * 클러스터 관리자 추가 (Create Cluster Admin) - 사용
+     *
+     * @param users the users
+     * @return the users list
+     */
+    @Transactional
+    public ResultStatus createClusterAdmin(Users users) {
+        try {
+            userRepository.deleteUserMappingListByCluster(users.getClusterId(), users.getUserAuthId(), defaultNamespace);
+            userRepository.save(users);
+        } catch (Exception e) {
+            throw new ResultStatusException(Constants.USER_CREATE_FAILED_MESSAGE);
+        }
+        return Constants.USER_CREATE_SUCCESS;
+    }
+
+
+    /**
+     * 클러스터 관리자 목록 조회(Get Cluster Admin List) - 사용
+     * 개발 0809 클러스터 관리자 목록 (완)
+     *
+     * @return the usersList
+     */
+    public UsersList getClusterAdminList(String cluster, String searchName) {
+        List<Users> clusterAdmin = userRepository.findByClusterIdAndUserTypeAndLikeUserId(cluster, Constants.AUTH_CLUSTER_ADMIN, searchName.trim());
+        UsersList clusterAdminList = new UsersList(clusterAdmin);
+        clusterAdminList = compareKeycloakUser(clusterAdminList);
+        return (UsersList) commonService.setResultModel(clusterAdminList, Constants.RESULT_STATUS_SUCCESS);
+    }
+
+
+    ////
+    public UsersList getTest(String userAuthId) {
+        List<Users> usersList = null;
+        try {
+            usersList = userRepository.getUsersDefaultInfo(Constants.HOST_CLUSTER_TYPE, userAuthId, defaultNamespace, Constants.AUTH_USER);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+        System.out.println(usersList);
+
+        return (UsersList) commonService.setResultModel(usersList, Constants.RESULT_STATUS_SUCCESS);
+    }
+
+
+    /**
+     * 사용자 상세 조회(Get user info details)
+     * 개발 0812 일반 사용자 상세화면
+     *
+     * @return the usersList
+     */
+    public UsersDetails getUsersMappingDetails(String cluster, String userAuthId) {
+        // 호스트, temp-namespace 정보 가져오기
+        Users userInfo = userRepository.getUsersDefaultInfo(Constants.HOST_CLUSTER_TYPE, userAuthId, defaultNamespace, Constants.AUTH_USER).get(0);
+
+        // 해당 클러스터에 맵핑된 네임스페이스 목록 조회
+        UsersList userMappingList = new UsersList(userRepository.getUserMappingListByCluster(cluster, userAuthId, defaultNamespace));
+        userMappingList = compareKeycloakUser(userMappingList);
+
+        UsersDetails usersDetails = new UsersDetails(userInfo.getUserId(), userInfo.getUserAuthId(), userInfo.getServiceAccountName(), Constants.AUTH_USER,
+                userInfo.getCreated(), userMappingList.getItems());
+
+        return (UsersDetails) commonService.setResultModel(usersDetails, Constants.RESULT_STATUS_SUCCESS);
+
+    }
+
+
+    /**
+     * Portal 활성화 사용자 목록 조회 (Get active users list)
+     * * 개발 0809 사용자 목록조회 -active
+     *
+     * @return the users list
+     */
+    public UsersDetailsList getActiveUsersList(String cluster, String namespace, String searchName) {
+        // 1. 클러스터 조건, USER 권한, temp-namespace 조회,  생성날짜 조인
+        List<Object[]> usersRawData = userRepository.getUsersListByCluster(cluster, defaultNamespace, Constants.AUTH_USER, searchName);
+
+        //2 Users 목록 으로 변환
+        UsersList usersList = new UsersList(usersRawData.stream().map(x -> new Users(x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7])).collect(Collectors.toList()));
+        usersList = compareKeycloakUser(usersList);
+
+        if (!namespace.equalsIgnoreCase(Constants.ALL_VAL)) {
+            usersList.setItems(usersList.getItems().stream().filter(x -> x.getCpNamespace().equals(namespace)).collect(Collectors.toList()));
+        }
+
+        // 3. User ID 별 속한 Namespace & Role 리스트화
+        List<UsersDetails> usersDetailsList = new ArrayList<>();
+
+        usersList.getItems().stream().collect(Collectors.groupingBy(s -> s.getUserAuthId())).forEach((k, v) -> {
+            Users users = v.get(0);
+            UsersDetails usersDetails = new UsersDetails(users.getUserId(), users.getUserAuthId(), users.getServiceAccountName(), Constants.AUTH_USER, users.getCreated(), v);
+            usersDetailsList.add(usersDetails);
+        });
+
+        UsersDetailsList resultList = new UsersDetailsList(usersDetailsList.stream().sorted(Comparator.comparing(UsersDetails::getCreated).reversed()).collect(Collectors.toList()));
+        return (UsersDetailsList) commonService.setResultModel(resultList, Constants.RESULT_STATUS_SUCCESS);
+    }
+
+
+    /**
+     * Portal 비활성화 사용자 목록 조회(Get Inactive Users list)
+     * 해당 클러스터에 비활성된 사용자
+     * * 개발 0810 사용자 목록조회 -inactive
+     *
+     * @return the users list
+     */
+    public UsersDetailsList getInActiveUsersList(String cluster, String searchName) {
+        // 1. temp-namespace 에만 속한 사용자 추출 (클러스터 관리자 계정 제외)
+
+        List<Users> inactiveUsersList = userRepository.getInactiveUsersListByCluster(Constants.HOST_CLUSTER_TYPE, cluster, defaultNamespace,
+                Constants.AUTH_CLUSTER_ADMIN, Constants.AUTH_USER, searchName);
+
+        UsersList usersList = new UsersList(inactiveUsersList);
+        usersList = compareKeycloakUser(usersList);
+
+        UsersDetailsList resultList = new UsersDetailsList(usersList.getItems().stream().map(x -> new UsersDetails(x.getUserId(), x.getUserAuthId(),
+                x.getServiceAccountName(), Constants.AUTH_USER, x.getCreated())).sorted(Comparator.comparing(UsersDetails::getCreated).reversed()).collect(Collectors.toList()));
+
+
+
+        return (UsersDetailsList) commonService.setResultModel(resultList, Constants.RESULT_STATUS_SUCCESS);
+    }
+
+
+    /**
+     * 사용자 상세 조회(Get user info details)
+     * 개발 0809 클러스터 관리자 조회
+     *
+     * @return the usersList
+     */
+    public UsersDetails getClusterAdminDetails(String cluster, String userAuthId) {
+        Users userInfo = userRepository.getUsersDefaultInfo(Constants.HOST_CLUSTER_TYPE, userAuthId, defaultNamespace, Constants.AUTH_USER).get(0);
+        List<Users> clusterAdmin = userRepository.findAllByClusterIdAndUserTypeAndUserAuthId(cluster, Constants.AUTH_CLUSTER_ADMIN, userAuthId);
+        return new UsersDetails(userInfo.getUserId(), userInfo.getUserAuthId(), userInfo.getServiceAccountName(), Constants.AUTH_CLUSTER_ADMIN,
+                userInfo.getCreated(), clusterAdmin);
+    }
 
 }

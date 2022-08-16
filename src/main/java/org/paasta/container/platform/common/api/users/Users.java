@@ -180,11 +180,11 @@ public class Users {
     public String toString() {
         return "Users{" +
                 "id=" + id +
-                ", userAuthId='" + userAuthId + '\'' +
+                ", clusterId='" + clusterId + '\'' +
                 ", userId='" + userId + '\'' +
+                ", userAuthId='" + userAuthId + '\'' +
                 ", cpNamespace='" + cpNamespace + '\'' +
-                ", roleSetCode='" + roleSetCode + '\'' +
                 ", userType='" + userType + '\'' +
-                '}'+ '\n' ;
+                '}';
     }
 }
