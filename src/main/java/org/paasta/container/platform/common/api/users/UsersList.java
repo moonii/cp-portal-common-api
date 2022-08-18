@@ -18,6 +18,7 @@ import java.util.List;
 public class UsersList {
     private String resultCode;
     private String resultMessage;
+    private String detailMessage;
 
     public String clusterApiUrl;
     public String clusterId;
@@ -42,5 +43,8 @@ public class UsersList {
         this.items = items;
     }
 
-
+    public UsersList(String detailMessage, List<Users> items) {
+        this.detailMessage = detailMessage;
+        this.items = items;
+    }
 }

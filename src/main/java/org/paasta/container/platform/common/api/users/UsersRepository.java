@@ -86,15 +86,7 @@ public interface UsersRepository extends JpaRepository<Users, Long>, JpaSpecific
     List<Users> findAllByUserType(String userType);
 
 
-
-    void deleteAllByUserIdAndUserType(String userId, String userType);
-
     List<Users> findAllByCpNamespaceAndUserIdAndUserType(String namespace, String userId, String userType);
-
-    @Query(value = "select cluster_id, user_id, user_auth_id, namespace, user_type, role_set_code from cp_users where cluster_id = :clusterId and user_auth_id = :userAuthId", nativeQuery = true)
-    List<Object[]> findAllByClusterIdAndUserAuthId(@Param("userAuthId") String userAuthId, @Param("clusterId") String clusterId);
-
-    List<Users> findAllByCpNamespaceAndUserId(String namespace, String userId);
 
 
     @Query(value =
@@ -196,6 +188,15 @@ public interface UsersRepository extends JpaRepository<Users, Long>, JpaSpecific
                                     @Param("defaultNamespace") String defaultNamespace, @Param("userType") String userType);
 
 
+    @Query(value = "SELECT a.id, a.user_id, a.user_auth_id, a.service_account_name, a.namespace, a.user_type, a.role_set_code, b.created FROM " +
+            "(SELECT * FROM cp_users WHERE cluster_id = :cluster AND user_type = :authClusterAdmin) a, "+
+            "(SELECT user_auth_id, MIN(created) as created FROM cp_users GROUP BY user_auth_id) b "+
+            "WHERE a.user_auth_id = b.user_auth_id " +
+            "AND a.user_id LIKE %:searchParam% " +
+            "ORDER BY b.created DESC", nativeQuery = true)
+    List<Object[]> getClusterAdminListByCluster(@Param("cluster") String cluster, @Param("authClusterAdmin") String authClusterAdmin, @Param("searchParam") String searchParam);
+
+
 
     @Query(value = "SELECT a.id, a.user_id, a.user_auth_id, a.service_account_name, a.namespace, a.user_type, a.role_set_code, b.created FROM " +
             "(SELECT * FROM cp_users WHERE cluster_id = :cluster AND namespace != :defaultNamespace AND user_type = :authUser) a, "+
@@ -203,9 +204,7 @@ public interface UsersRepository extends JpaRepository<Users, Long>, JpaSpecific
             "WHERE a.user_auth_id = b.user_auth_id " +
             "AND a.user_id LIKE %:searchParam% " +
             "ORDER BY b.created DESC", nativeQuery = true)
-    List<Object[]> getUsersListByCluster(@Param("cluster") String cluster, @Param("defaultNamespace") String defaultNamespace, @Param("authUser") String authUser, @Param("searchParam") String searchParam);
-
-
+    List<Object[]> getActiveUsersListByCluster(@Param("cluster") String cluster, @Param("defaultNamespace") String defaultNamespace, @Param("authUser") String authUser, @Param("searchParam") String searchParam);
 
 
     @Query(value = "SELECT a.* FROM  cp_users a, cp_clusters b " +
@@ -219,18 +218,13 @@ public interface UsersRepository extends JpaRepository<Users, Long>, JpaSpecific
 
 
     List<Users> findAllByClusterIdAndUserTypeAndUserAuthId(String clusterId, String userType, String userAuthId);
-    /*@Query(value =
-            "SELECT cp_users.user_id, cp_users.user_type, cp_users.namespace, cp_clusters.cluster_id, cp_clusters.cluster_api_url " +
-                    "FROM cp_users " +
-                    "INNER JOIN cp_clusters ON cp_users.cluster_id = cp_clusters.cluster_id " +
-                    "WHERE cp_users.user_id = :userId AND cp_users.user_type = :userType ;", nativeQuery = true)
-    List<Object[]> findUserAuthId(@Param("userId") String userId, @Param("userType") String userType);*/
 
 
-    @Query(value ="SELECT * FROM cp_users WHERE user_auth_id= :userAuthId AND user_type= :userType", nativeQuery = true)
-    List<Object[]> findUserAuthId(@Param("userAuthId") String userId, @Param("userType") String userType);
+    List<Users> findAllByClusterIdAndUserAuthId(String clusterId, String userAuthId);
 
+    void deleteAllByClusterIdAndCpNamespaceAndUserAuthIdAndUserType(String clusterId, String namespace, String userAuthId, String userType);
 
-
+    @Query(value = "DELETE FROM cp_users WHERE id IN (:id) ;", nativeQuery = true)
+    List<Users> deleteUsers(@Param("id") Long[] id);
 
 }

@@ -15,6 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+
 import javax.transaction.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -681,12 +682,9 @@ public class UsersService {
         UsersList usersList = new UsersList();
         //UsersAdmin returnUserAdmin = null;
 
-        List<Object[]> listUser = userRepository.findAllByClusterIdAndUserAuthId(userAuthId, cluster);
-        List<Users> resultLIst = new ArrayList<>();
+        List<Users> resultLIst = userRepository.findAllByClusterIdAndUserAuthId(userAuthId, cluster);
 
-        resultLIst = listUser.stream().map(x -> new Users(x[0], x[1], x[2], x[3], x[4], x[5])).collect(Collectors.toList());
-
-        for (int i = 0; i <= resultLIst.size() -1; i++) {
+        for (int i = 0; i <= resultLIst.size() - 1; i++) {
             if (resultLIst.get(i).getUserType().equals("SUPER_ADMIN")) {
                 usersList.setItems(resultLIst);
                 break;
@@ -852,8 +850,8 @@ public class UsersService {
      * @return the usersList
      */
     public UsersList getClusterAdminList(String cluster, String searchName) {
-        List<Users> clusterAdmin = userRepository.findByClusterIdAndUserTypeAndLikeUserId(cluster, Constants.AUTH_CLUSTER_ADMIN, searchName.trim());
-        UsersList clusterAdminList = new UsersList(clusterAdmin);
+        List<Object[]> clusterAdminRawData = userRepository.getClusterAdminListByCluster(cluster, Constants.AUTH_CLUSTER_ADMIN, searchName.trim());
+        UsersList clusterAdminList = new UsersList(clusterAdminRawData.stream().map(x -> new Users(x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7])).collect(Collectors.toList()));
         clusterAdminList = compareKeycloakUser(clusterAdminList);
         return (UsersList) commonService.setResultModel(clusterAdminList, Constants.RESULT_STATUS_SUCCESS);
     }
@@ -904,7 +902,7 @@ public class UsersService {
      */
     public UsersDetailsList getActiveUsersList(String cluster, String namespace, String searchName) {
         // 1. 클러스터 조건, USER 권한, temp-namespace 조회,  생성날짜 조인
-        List<Object[]> usersRawData = userRepository.getUsersListByCluster(cluster, defaultNamespace, Constants.AUTH_USER, searchName);
+        List<Object[]> usersRawData = userRepository.getActiveUsersListByCluster(cluster, defaultNamespace, Constants.AUTH_USER, searchName);
 
         //2 Users 목록 으로 변환
         UsersList usersList = new UsersList(usersRawData.stream().map(x -> new Users(x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7])).collect(Collectors.toList()));
@@ -948,7 +946,6 @@ public class UsersService {
                 x.getServiceAccountName(), Constants.AUTH_USER, x.getCreated())).sorted(Comparator.comparing(UsersDetails::getCreated).reversed()).collect(Collectors.toList()));
 
 
-
         return (UsersDetailsList) commonService.setResultModel(resultList, Constants.RESULT_STATUS_SUCCESS);
     }
 
@@ -966,4 +963,46 @@ public class UsersService {
                 userInfo.getCreated(), clusterAdmin);
     }
 
+
+    /**
+     * 사용자 상세 조회(Get user info details)
+     * 개발 0817 클러스터 관리자 조회
+     *
+     * @return the usersList
+     */
+    public UsersDetails getUserInfoDetails(String cluster, String userAuthId) {
+        UsersDetails usersDetails = null;
+        Users userInfo = userRepository.getUsersDefaultInfo(Constants.HOST_CLUSTER_TYPE, userAuthId, defaultNamespace, Constants.AUTH_USER).get(0);
+
+
+        UsersList usersLIst = new UsersList(userRepository.findAllByClusterIdAndUserAuthId(cluster, userAuthId));
+        usersLIst = compareKeycloakUser(usersLIst);
+
+        List<Users> checkClusterAdmin = usersLIst.getItems().stream().filter(x -> x.getUserType().equalsIgnoreCase(Constants.AUTH_CLUSTER_ADMIN)).collect(Collectors.toList());
+
+        if (checkClusterAdmin.size() > 0) {
+            usersDetails = new UsersDetails(userInfo.getUserId(), userInfo.getUserAuthId(), userInfo.getServiceAccountName(),
+                    Constants.AUTH_CLUSTER_ADMIN, userInfo.getCreated(), checkClusterAdmin);
+        } else {
+            List<Users> usersMappingList = usersLIst.getItems().stream().filter(x -> !x.getCpNamespace().equalsIgnoreCase(defaultNamespace)).collect(Collectors.toList());
+            usersDetails = new UsersDetails(userInfo.getUserId(), userInfo.getUserAuthId(), userInfo.getServiceAccountName(),
+                    Constants.AUTH_USER, userInfo.getCreated(), usersMappingList);
+        }
+
+        return (UsersDetails) commonService.setResultModel(usersDetails, Constants.RESULT_STATUS_SUCCESS);
+
+    }
+
+
+    public ResultStatus deleteUsers(String clusterId, String namespace, String userAuthId, String userType) {
+        userRepository.deleteAllByClusterIdAndCpNamespaceAndUserAuthIdAndUserType(clusterId, namespace, userAuthId, userType);
+        return new ResultStatus(Constants.RESULT_STATUS_SUCCESS, "user delete success.");
+    }
+
+    public ResultStatus deleteUsers(Long[] ids) {
+        if (ids.length > 0) {
+            userRepository.deleteUsers(ids);
+        }
+        return new ResultStatus(Constants.RESULT_STATUS_SUCCESS, "user delete success.");
+    }
 }

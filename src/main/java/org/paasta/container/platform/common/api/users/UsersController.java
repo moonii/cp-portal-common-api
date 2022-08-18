@@ -121,7 +121,7 @@ public class UsersController {
                                                      @PathVariable(value = "namespace") String namespace,
                                                      @RequestParam(required = false, defaultValue = "") String searchName,
                                                      @RequestParam(required = false, defaultValue = "true") String isActive) {
-       if (isActive.equalsIgnoreCase(IS_ADMIN_FALSE)) {
+        if (isActive.equalsIgnoreCase(IS_ADMIN_FALSE)) {
             // 비활성화 사용자인 경우
             return userService.getInActiveUsersList(cluster, searchName);
         }
@@ -338,6 +338,7 @@ public class UsersController {
     /**
      * 사용자 상세 조회(Get user info details)
      * 개발 0811 상세 정보
+     *
      * @return the usersList
      */
     @ApiOperation(value = "사용자 상세 조회(Get user info details)", nickname = "getUserInfoDetails")
@@ -347,12 +348,8 @@ public class UsersController {
     })
     @GetMapping(value = "/clusters/{cluster:.+}/users/{userAuthId:.+}/details")
     public UsersDetails getUserInfoDetails(@PathVariable(value = "cluster") String cluster,
-                                           @PathVariable(value = "userAuthId") String userAuthId,
-                                           @RequestParam(required = false, defaultValue = "") String userType){
-        if(userType.equalsIgnoreCase(AUTH_CLUSTER_ADMIN)){
-            return userService.getClusterAdminDetails(cluster,userAuthId);
-        }
-        return userService.getUsersMappingDetails(cluster, userAuthId);
+                                           @PathVariable(value = "userAuthId") String userAuthId) {
+        return userService.getUserInfoDetails(cluster, userAuthId);
     }
 
     /*
@@ -369,8 +366,8 @@ public class UsersController {
     })
     @GetMapping(value = "/cluster/info/all/user/details")
     public Object getUsersAccessInfo(@RequestParam(required = true) String userAuthId,
-                                         @RequestParam(required = true) String cluster,
-                                         @RequestParam(required = true) String namespace) {
+                                     @RequestParam(required = true) String cluster,
+                                     @RequestParam(required = true) String namespace) {
 
         return userService.getUsersAccessInfo(userAuthId, cluster, namespace);
     }
@@ -544,6 +541,7 @@ public class UsersController {
 
 
     // 클러스터 관리자////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     /**
      * 클러스터 관리자 생성 (Create Cluster Admin)
      *
@@ -559,6 +557,7 @@ public class UsersController {
     /**
      * 클러스터 관리자 목록 조회(Get Cluster Admin List) - 사용
      * 개발 0809 클러스터 관리자 목록 (완)
+     *
      * @return the usersList
      */
     @ApiOperation(value = "클러스터 관리자 목록 조회(Get Cluster Admin List)", nickname = "getClusterAdminList")
@@ -572,10 +571,31 @@ public class UsersController {
     }
 
 
-/*    @GetMapping(value = "/user/test")
-    public Object getTest(@RequestParam(required = false, defaultValue = "") String cluster,
-                          @RequestParam(required = false, defaultValue = "") String searchName){
-        return userService.getActiveUsersLisNew(cluster, searchName);
-    }*/
+    /**
+     * 사용자 삭제
+     * 개발 0816 사용자 수정을 위한 상세 정보 조회
+     *
+     * @return the usersList
+     */
+    @DeleteMapping(value = "/clusters/{cluster:.+}/namespaces/{namespace:.+}/users/{userAuthId:.+}/{userType}")
+    public ResultStatus deleteUsers(@PathVariable String cluster,
+                                    @PathVariable String namespace,
+                                    @PathVariable String userAuthId,
+                                    @PathVariable String userType) {
+        return userService.deleteUsers(cluster, namespace, userAuthId, userType);
+    }
+
+
+    /**
+     * 사용자 삭제
+     * 개발 0816 사용자 삭제
+     *
+     * @return the ResultStatus
+     */
+    @DeleteMapping(value = "/users/ids")
+    public ResultStatus deleteUsers(@RequestParam(required = false, defaultValue = "") Long[] ids) {
+       return userService.deleteUsers(ids);
+    }
+
 }
 
