@@ -790,7 +790,7 @@ public class UsersService {
      * @return the users list
      */
     public UsersList getClustersListUsedByUser(String userAuthId) {
-        List<Object[]> list = userRepository.findClustersUsedByUser(Constants.HOST_CLUSTER_TYPE, defaultNamespace, userAuthId);
+        List<Object[]> list = userRepository.findClustersUsedByUser(Constants.AUTH_USER, defaultNamespace, userAuthId);
         UsersList usersList = new UsersList(list.stream().map(x -> new Users(x[0], x[1], x[2], x[3], x[4])).collect(Collectors.toList()));
         return (UsersList) commonService.setResultModel(usersList, Constants.RESULT_STATUS_SUCCESS);
     }
@@ -927,9 +927,11 @@ public class UsersService {
         List<UsersDetails> usersDetailsList = new ArrayList<>();
 
         usersList.getItems().stream().collect(Collectors.groupingBy(s -> s.getUserAuthId())).forEach((k, v) -> {
-            Users users = v.get(0);
-            UsersDetails usersDetails = new UsersDetails(users.getUserId(), users.getUserAuthId(), users.getServiceAccountName(), Constants.AUTH_USER, users.getCreated(), v);
-            usersDetailsList.add(usersDetails);
+            if(v.size() > 0) {
+                Users users = v.get(0);
+                UsersDetails usersDetails = new UsersDetails(users.getUserId(), users.getUserAuthId(), users.getServiceAccountName(), Constants.AUTH_USER, users.getCreated(), v);
+                usersDetailsList.add(usersDetails);
+            }
         });
 
         UsersDetailsList resultList = new UsersDetailsList(usersDetailsList.stream().sorted(Comparator.comparing(UsersDetails::getCreated).reversed()).collect(Collectors.toList()));

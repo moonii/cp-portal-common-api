@@ -4,7 +4,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.paasta.container.platform.common.api.common.Constants;
 import org.paasta.container.platform.common.api.common.ResultStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -110,6 +109,7 @@ public class UsersController {
      * @param searchName the searchName
      * @return the users list
      * 개발 0809 사용자 목록조회 -active
+     * 개발 0822 active 사용자 테스트
      */
     @ApiOperation(value = "Admin Portal 활성화 여부에 따른 사용자 목록 조회(Get Users list of admin portal)", nickname = "getUsersListAllByCluster")
     @ApiImplicitParams({
@@ -574,7 +574,7 @@ public class UsersController {
     /**
      * 클러스터 관리자 목록 조회(Get Cluster Admin List) - 사용
      * 개발 0809 클러스터 관리자 목록 (완)
-     *
+     * 개발 0822 클러스터 관리자 목록 조회 테스트
      * @return the usersList
      */
     @ApiOperation(value = "클러스터 관리자 목록 조회(Get Cluster Admin List)", nickname = "getClusterAdminList")
