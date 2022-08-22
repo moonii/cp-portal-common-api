@@ -801,7 +801,7 @@ public class UsersService {
      * @return the users list
      */
     public UsersList getClustersAndNamespacesListUsedByUser(String userAuthId) {
-        List<Object[]> list = userRepository.findClustersAndNamespacesUsedByUser(userAuthId);
+        List<Object[]> list = userRepository.findClustersAndNamespacesUsedByUser(Constants.AUTH_USER, defaultNamespace, userAuthId);
         UsersList usersList = new UsersList(list.stream().map(x -> new Users(x[0], x[1], x[2], x[3])).collect(Collectors.toList()));
         return (UsersList) commonService.setResultModel(usersList, Constants.RESULT_STATUS_SUCCESS);
     }

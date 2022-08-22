@@ -64,7 +64,7 @@ public class ClustersService {
     }
 
     public ClustersList getClustersListByUser(String userAuthId) {
-        ClustersList clustersList = new ClustersList(clustersRepository.findClustersUsedByUser(Constants.HOST_CLUSTER_TYPE, defaultNamespace, userAuthId));
+        ClustersList clustersList = new ClustersList(clustersRepository.findClustersUsedByUser(Constants.AUTH_USER, defaultNamespace, userAuthId));
         return (ClustersList) commonService.setResultModel(clustersList, Constants.RESULT_STATUS_SUCCESS);
     }
 

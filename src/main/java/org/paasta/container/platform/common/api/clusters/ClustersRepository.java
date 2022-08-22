@@ -27,9 +27,9 @@ public interface ClustersRepository extends JpaRepository<Clusters, Long> {
     @Query(value = "SELECT DISTINCT b.*" +
             "FROM cp_users a, cp_clusters b " +
             "WHERE a.cluster_id = b.cluster_id " +
-            "AND NOT (b.cluster_type = :clusterType AND a.namespace = :namespace ) " +
+            "AND NOT (a.user_type = :authUser AND a.namespace = :namespace ) " +
             "AND a.user_auth_id = :userAuthId " +
             "ORDER BY b.name; ", nativeQuery = true)
-    List<Clusters> findClustersUsedByUser(@Param("clusterType") String clusterType, @Param("namespace") String namespace, @Param("userAuthId") String userAuthId);
+    List<Clusters> findClustersUsedByUser(@Param("authUser") String authUser, @Param("namespace") String namespace, @Param("userAuthId") String userAuthId);
 
 }

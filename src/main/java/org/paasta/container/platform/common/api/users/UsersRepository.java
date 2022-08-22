@@ -146,10 +146,10 @@ public interface UsersRepository extends JpaRepository<Users, Long>, JpaSpecific
     @Query(value = "SELECT b.cluster_id, b.name, a.user_type, a.namespace " +
             "FROM cp_users a, cp_clusters b " +
             "WHERE a.cluster_id = b.cluster_id " +
-            "AND NOT (a.user_type = 'USER' AND a.namespace = 'cp-portal-temp-namespace' ) " +
+            "AND NOT (a.user_type = :authUser AND a.namespace = :defaultNamespace ) " +
             "AND a.user_auth_id = :userAuthId " +
             "ORDER BY b.name; ", nativeQuery = true)
-    List<Object[]> findClustersAndNamespacesUsedByUser(@Param("userAuthId") String userAuthId);
+    List<Object[]> findClustersAndNamespacesUsedByUser(@Param("authUser") String authUser, @Param("defaultNamespace") String defaultNamespace, @Param("userAuthId") String userAuthId);
 
     @Query(value = "SELECT * FROM cp_users "+
                    "WHERE cluster_id = :clusterId AND user_auth_id = :userAuthId AND namespace NOT IN (:defaultNamespace)", nativeQuery = true)
