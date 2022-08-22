@@ -136,6 +136,12 @@ public class Users {
         this.isNsAdmin = (String) isNsAdmin;
     }
 
+    public Users(Object clusterId, Object clusterName, Object userType, Object cpNamespace) {
+        this.clusterId = (String) clusterId;
+        this.clusterName = (String) clusterName;
+        this.userType = (String) userType;
+        this.cpNamespace = (String) cpNamespace;
+    }
 
     public Users(Object clusterId, Object clusterName, Object clusterType, Object clusterProviderType, Object userType) {
         this.clusterId = (String) clusterId;
@@ -144,7 +150,6 @@ public class Users {
         this.clusterProviderType = (String) clusterProviderType;
         this.userType = (String) userType;
     }
-
 
     public Users(Object clusterId, Object userId, Object userAuthId, Object cpNamespace, Object userType, Object roleSetCode) {
         this.clusterId = (String) clusterId;
