@@ -528,6 +528,23 @@ public class UsersController {
 
 
     /**
+     * User가 사용하는 Clusters & namespace 목록 조회(Get Clusters List Used By User)
+     *
+     * @return the clustersList
+     */
+    @ApiOperation(value = "User가 사용하는 Clusters & namespace 목록 조회(Get Clusters List Used By User)", nickname = "getClustersListUsedByUser")
+    @GetMapping(value = "/users/{userAuthId:.+}/clustersAndNamespacesList")
+    public UsersList getClustersListAndNamespacesUsedByUser(@PathVariable String userAuthId,
+                                               @RequestParam(required = false, defaultValue = "USER") String userType) {
+
+        if (userType.equals(AUTH_SUPER_ADMIN)) {
+            return userService.getClustersListUsedBySuperAdmin();
+        }
+        return userService.getClustersAndNamespacesListUsedByUser(userAuthId);
+    }
+
+
+    /**
      * 클러스터에 따른 User Mapping 목록 조회 (Get User Mapping List By Cluster)
      *
      * @return the usersList

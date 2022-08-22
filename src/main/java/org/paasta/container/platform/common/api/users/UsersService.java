@@ -795,6 +795,17 @@ public class UsersService {
         return (UsersList) commonService.setResultModel(usersList, Constants.RESULT_STATUS_SUCCESS);
     }
 
+    /**
+     * User가 사용하는 Clusters & Namespaces 목록 조회(Get Clusters List Used By User)
+     *
+     * @return the users list
+     */
+    public UsersList getClustersAndNamespacesListUsedByUser(String userAuthId) {
+        List<Object[]> list = userRepository.findClustersAndNamespacesUsedByUser(userAuthId);
+        UsersList usersList = new UsersList(list.stream().map(x -> new Users(x[0], x[1], x[2], x[3])).collect(Collectors.toList()));
+        return (UsersList) commonService.setResultModel(usersList, Constants.RESULT_STATUS_SUCCESS);
+    }
+
 
     /**
      * Super Admin Clusters 목록 조회(Get Clusters List Used By Super Admin)
