@@ -594,7 +594,7 @@ public class UsersController {
      *
      * @return the usersList
      */
-    @DeleteMapping(value = "/clusters/{cluster:.+}/namespaces/{namespace:.+}/users/{userAuthId:.+}/{userType}")
+    @DeleteMapping(value = "/clusters/{cluster:.+}/namespaces/{namespace:.+}/users/{userAuthId:.+}/{userType:.+}")
     public ResultStatus deleteUsers(@PathVariable String cluster,
                                     @PathVariable String namespace,
                                     @PathVariable String userAuthId,
