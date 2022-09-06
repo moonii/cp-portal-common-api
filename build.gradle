@@ -47,6 +47,7 @@ ext {
 
 jar {
 	archivesBaseName = 'paas-ta-container-platform-common-api'
+	enabled = false
 }
 
 dependencies {
