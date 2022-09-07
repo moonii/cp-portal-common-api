@@ -130,53 +130,6 @@ public class UsersController {
 
 
     /**
-     * 각 Namespace 별 Users 목록 조회(Get Users namespace list)
-     *
-     * @param cluster    the cluster
-     * @param namespace  the namespace
-     * @param orderBy    the orderBy
-     * @param order      the order
-     * @param searchName the searchName
-     * @return the users list
-     */
-    @ApiOperation(value = "각 Namespace 별 Users 목록 조회(Get Users namespace list)", nickname = "getUsersListByNamespace")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "cluster", value = "클러스터 명", required = true, dataType = "String", paramType = "path"),
-            @ApiImplicitParam(name = "namespace", value = "네임스페이스 명", required = true, dataType = "String", paramType = "path"),
-            @ApiImplicitParam(name = "orderBy", value = "정렬 기준, 기본값 created(생성날짜)", required = false, dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "order", value = "정렬 순서, 기본값 desc(내림차순)", required = false, dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "searchName", value = "userId 검색", required = false, dataType = "String", paramType = "query")
-    })
-    @GetMapping(value = "/clusters/{cluster:.+}/namespaces/{namespace:.+}/users")
-    public UsersList getUsersListByNamespace(@PathVariable(value = "cluster") String cluster,
-                                             @PathVariable(value = "namespace") String namespace,
-                                             @RequestParam(required = false, defaultValue = "created") String orderBy,
-                                             @RequestParam(required = false, defaultValue = "desc") String order,
-                                             @RequestParam(required = false, defaultValue = "") String searchName) {
-        return userService.getUsersListByNamespace(namespace, orderBy, order, searchName);
-    }
-
-
-    /**
-     * 각 Namespace 별 등록된 Users 목록 조회(Get Registered Users namespace list)
-     *
-     * @param cluster   the cluster
-     * @param namespace the namespace
-     * @return the users list
-     */
-    @ApiOperation(value = "각 Namespace 별 등록된 Users 목록 조회(Get Registered Users namespace list)", nickname = "getUsersNameListByNamespace")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "cluster", value = "클러스터 명", required = true, dataType = "String", paramType = "path"),
-            @ApiImplicitParam(name = "namespace", value = "네임스페이스 명", required = true, dataType = "String", paramType = "path")
-    })
-    @GetMapping(value = "/clusters/{cluster:.+}/namespaces/{namespace:.+}/users/names")
-    public Map<String, List> getUsersNameListByNamespace(@PathVariable(value = "cluster") String cluster,
-                                                         @PathVariable(value = "namespace") String namespace) {
-        return userService.getUsersNameListByNamespace(namespace);
-    }
-
-
-    /**
      * Users 상세 조회(Get Users detail)
      *
      * @param userId the userId
@@ -219,24 +172,6 @@ public class UsersController {
         return userService.getUsers(cluster, namespace, userAuthId);
     }
 
-
-    /*
-     */
-/**
- * 모든 Namespace 중 해당 사용자가 포함된 Users 목록 조회
- *
- * @param cluster the cluster
- * @param userId  the usrId
- * @return the users list
- *//*
-
-    @GetMapping("/clusters/{cluster:.+}/users/{userId:.+}")
-    public UsersList getNamespaceListByUserId(@PathVariable(value = "cluster") String cluster,
-                                              @PathVariable(value = "userId") String userId) {
-        return userService.getNamespaceListByUserId(cluster, userId);
-    }
-
-*/
 
     /**
      * Users 삭제(Delete Users)
@@ -416,26 +351,6 @@ public class UsersController {
 
 
     /**
-     * 네임스페이스 사용자 전체 삭제 (Delete Namespace All User)
-     *
-     * @param cluster   the cluster
-     * @param namespace the namespace
-     * @return return is succeeded
-     */
-    @ApiOperation(value = "네임스페이스 사용자 전체 삭제 (Delete Namespace All User)", nickname = "deleteAllUsersByNamespace")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "cluster", value = "클러스터 명", required = true, dataType = "String", paramType = "path"),
-            @ApiImplicitParam(name = "namespace", value = "네임스페이스 명", required = true, dataType = "String", paramType = "path")
-    })
-    @DeleteMapping("/clusters/{cluster:.+}/namespaces/{namespace:.+}/users")
-    public ResultStatus deleteAllUsersByNamespace(@PathVariable(value = "cluster") String cluster,
-                                                  @PathVariable(value = "namespace") String namespace) {
-        return userService.deleteAllUsersByNamespace(cluster, namespace);
-
-    }
-
-
-    /**
      * 클러스터 관리자 삭제 (Delete Cluster Admin)
      *
      * @param cluster the cluster
@@ -535,7 +450,7 @@ public class UsersController {
     @ApiOperation(value = "User가 사용하는 Clusters & namespace 목록 조회(Get Clusters List Used By User)", nickname = "getClustersListUsedByUser")
     @GetMapping(value = "/users/{userAuthId:.+}/clustersAndNamespacesList")
     public UsersList getClustersListAndNamespacesUsedByUser(@PathVariable String userAuthId,
-                                               @RequestParam(required = false, defaultValue = "USER") String userType) {
+                                                            @RequestParam(required = false, defaultValue = "USER") String userType) {
 
         if (userType.equals(AUTH_SUPER_ADMIN)) {
             return userService.getClustersListUsedBySuperAdmin();
@@ -575,6 +490,7 @@ public class UsersController {
      * 클러스터 관리자 목록 조회(Get Cluster Admin List) - 사용
      * 개발 0809 클러스터 관리자 목록 (완)
      * 개발 0822 클러스터 관리자 목록 조회 테스트
+     *
      * @return the usersList
      */
     @ApiOperation(value = "클러스터 관리자 목록 조회(Get Cluster Admin List)", nickname = "getClusterAdminList")
@@ -611,8 +527,49 @@ public class UsersController {
      */
     @DeleteMapping(value = "/users/ids")
     public ResultStatus deleteUsers(@RequestParam(required = false, defaultValue = "") Long[] ids) {
-       return userService.deleteUsers(ids);
+        return userService.deleteUsers(ids);
     }
+
+
+    /**
+     * 클러스터 내 특정 네임스페이스 사용자 전체 삭제 (Delete Namespace All User)
+     *
+     * @param cluster   the cluster
+     * @param namespace the namespace
+     * @return return is succeeded
+     */
+    @ApiOperation(value = "클러스터 내 특정 네임스페이스 사용자 전체 삭제 (Delete Namespace All User)", nickname = "deleteAllUsersByClusterAndNamespace")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "cluster", value = "클러스터 명", required = true, dataType = "String", paramType = "path"),
+            @ApiImplicitParam(name = "namespace", value = "네임스페이스 명", required = true, dataType = "String", paramType = "path")
+    })
+    @DeleteMapping("/clusters/{cluster:.+}/namespaces/{namespace:.+}/users")
+    public ResultStatus deleteAllUsersByClusterAndNamespace(@PathVariable(value = "cluster") String cluster,
+                                                         @PathVariable(value = "namespace") String namespace) {
+        return userService.deleteAllUsersByClusterAndNamespace(cluster, namespace);
+
+    }
+
+
+    /**
+     * 클러스터 내 특정 네임스페이스 사용자 목록 조회 (Get Namespace All User)
+     *
+     * @param cluster   the cluster
+     * @param namespace the namespace
+     * @return usersList the UsersList
+     */
+    @ApiOperation(value = "클러스터 내 특정 네임스페이스 사용자 목록 조회 (Get Namespace All User)", nickname = "deleteAllUsersByNamespace")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "cluster", value = "클러스터 명", required = true, dataType = "String", paramType = "path"),
+            @ApiImplicitParam(name = "namespace", value = "네임스페이스 명", required = true, dataType = "String", paramType = "path")
+    })
+    @GetMapping("/clusters/{cluster:.+}/namespaces/{namespace:.+}/users")
+    public UsersList getAllUsersByClusterAndNamespace(@PathVariable(value = "cluster") String cluster,
+                                                      @PathVariable(value = "namespace") String namespace) {
+        return userService.getAllUsersByClusterAndNamespace(cluster, namespace);
+
+    }
+
 
 }
 

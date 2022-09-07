@@ -123,7 +123,6 @@ public interface UsersRepository extends JpaRepository<Users, Long>, JpaSpecific
 
     void deleteAllByUserIdAndUserAuthIdAndCpNamespace(String userId, String userAuthId, String namespace);
 
-    void deleteAllByCpNamespace(String namespace);
 
     List<Users> findAllByUserIdAndUserAuthIdOrderByCreatedDesc(String userId, String userAuthId);
 
@@ -158,6 +157,8 @@ public interface UsersRepository extends JpaRepository<Users, Long>, JpaSpecific
 
 
     List<Users> findAllByClusterIdAndCpNamespaceAndUserAuthId(String clusterId, String namespace, String userAuthId);
+
+
 
 
 
@@ -235,4 +236,8 @@ public interface UsersRepository extends JpaRepository<Users, Long>, JpaSpecific
     @Query(value = "DELETE FROM cp_users WHERE id IN (:id) ;", nativeQuery = true)
     List<Users> deleteUsers(@Param("id") Long[] id);
 
+
+    void deleteAllByClusterIdAndCpNamespaceAndUserType(String clusterId, String namespace, String userType);
+
+    List<Users> findAllByClusterIdAndCpNamespaceAndUserType(String clusterId, String namespace, String userType);
 }
