@@ -61,6 +61,7 @@ public class Constants {
     public static final String USER_ALREADY_REGISTERED_MESSAGE = "USER_ALREADY_REGISTERED";
     public static final String USER_REGISTRATION_AVAILABLE_MESSAGE = "USER_REGISTRATION_AVAILABLE";
     public static final String DATA_NOT_FOUND_MESSAGE = "DATA_NOT_FOUND";
+    public static final String REQUEST_COULD_NOT_BE_PROCESSED = "REQUEST_COULD_NOT_BE_PROCESSED";
 
     public static final String CLUSTER_STATUS_ACTIVE = "A";
     public static final String CLUSTER_STATUS_CREATING = "C";

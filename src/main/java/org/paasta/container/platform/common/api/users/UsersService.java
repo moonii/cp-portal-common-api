@@ -759,18 +759,6 @@ public class UsersService {
     }
 
 
-    /**
-     * 네임스페이스 사용자 전체 삭제 (Delete Namespace All User)
-     *
-     * @param cluster   the cluster
-     * @param namespace the namespace
-     * @return return is succeeded
-     */
-    public ResultStatus deleteAllUsersByNamespace(String cluster, String namespace) {
-        userRepository.deleteAllByCpNamespace(namespace);
-        return new ResultStatus(Constants.RESULT_STATUS_SUCCESS, "namespace all user delete success.", 200, "namespace all user delete success.");
-    }
-
 
     /**
      * 클러스터 관리자 삭제 (Delete Cluster Admin)
@@ -1018,4 +1006,38 @@ public class UsersService {
         }
         return new ResultStatus(Constants.RESULT_STATUS_SUCCESS, "user delete success.");
     }
+
+
+    /**
+     * 클러스터 내 특정 네임스페이스 사용자 목록 조회 (Get Namespace All User)
+     *
+     * @param cluster   the cluster
+     * @param namespace the namespace
+     * @return usersList the UsersList
+     */
+    public UsersList getAllUsersByClusterAndNamespace(String cluster, String namespace) {
+        List<Users> items = userRepository.findAllByClusterIdAndCpNamespaceAndUserType(cluster, namespace, Constants.AUTH_USER);
+        UsersList usersList = new UsersList(items);
+        usersList = compareKeycloakUser(usersList);
+        return (UsersList) commonService.setResultModel(usersList, Constants.RESULT_STATUS_SUCCESS);
+    }
+
+
+
+    /**
+     * 네임스페이스 사용자 전체 삭제 (Delete Namespace All User)
+     *
+     * @param cluster   the cluster
+     * @param namespace the namespace
+     * @return return is succeeded
+     */
+    public ResultStatus deleteAllUsersByClusterAndNamespace(String cluster, String namespace) {
+        if(namespace.equalsIgnoreCase(defaultNamespace)) {
+            throw new ResultStatusException(Constants.REQUEST_COULD_NOT_BE_PROCESSED);
+        }
+
+        userRepository.deleteAllByClusterIdAndCpNamespaceAndUserType(cluster, namespace, Constants.AUTH_USER);
+        return new ResultStatus(Constants.RESULT_STATUS_SUCCESS, "user delete success.", 200, "user delete success.");
+    }
+
 }
