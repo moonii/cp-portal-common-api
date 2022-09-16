@@ -679,28 +679,35 @@ public class UsersService {
      */
     public Object getUsersAccessInfo(String userAuthId, String cluster, String namespace) {
 
-        UsersList usersList = new UsersList();
-        //UsersAdmin returnUserAdmin = null;
+        Users users = new Users();
 
-        List<Users> resultLIst = userRepository.findAllByClusterIdAndUserAuthId(userAuthId, cluster);
+        List<Users> listUser = userRepository.findAllByClusterIdAndUserAuthId(cluster, userAuthId);
 
-        for (int i = 0; i <= resultLIst.size() - 1; i++) {
-            if (resultLIst.get(i).getUserType().equals("SUPER_ADMIN")) {
-                usersList.setItems(resultLIst);
-                break;
-            } else if (resultLIst.get(i).getUserType().equals("CLUSTER_ADMIN")) {
-                usersList.setItems(resultLIst);
-                break;
-            } else if (resultLIst.get(i).getUserType().equals("USER")) {
-                if (!resultLIst.get(i).getCpNamespace().equals(namespace)) {
-                    resultLIst.remove(i);
-                    usersList.setItems(resultLIst);
-                    break;
+        for (int i = 0; i <= listUser.size() - 1; i++) {
+            if (listUser.get(i).getUserType().equals(Constants.AUTH_SUPER_ADMIN)) {
+                users.setUserId(listUser.get(i).getUserId());
+                users.setRoleSetCode(listUser.get(i).getRoleSetCode());
+
+                //break;
+            } else if (listUser.get(i).getUserType().equals(Constants.AUTH_CLUSTER_ADMIN)) {
+                users.setUserId(listUser.get(i).getUserId());
+                users.setRoleSetCode(listUser.get(i).getRoleSetCode());
+                //break;
+            } else if (listUser.get(i).getUserType().equals(Constants.AUTH_USER)) {
+                if (!listUser.get(i).getCpNamespace().equals(namespace)) {
+                    listUser.remove(i);
+                    users.setUserId(listUser.get(i).getUserId());
+                    users.setRoleSetCode(listUser.get(i).getRoleSetCode());
+                    //break;
+                } else {
+                    users.setUserId(listUser.get(i).getUserId());
+                    users.setRoleSetCode(listUser.get(i).getRoleSetCode());
                 }
+                //break;
             }
         }
 
-        return commonService.setResultModel(usersList, Constants.RESULT_STATUS_SUCCESS);
+        return commonService.setResultModel(users, Constants.RESULT_STATUS_SUCCESS);
 
     }
 
