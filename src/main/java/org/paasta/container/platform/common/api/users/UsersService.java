@@ -685,25 +685,16 @@ public class UsersService {
 
         for (int i = 0; i <= listUser.size() - 1; i++) {
             if (listUser.get(i).getUserType().equals(Constants.AUTH_SUPER_ADMIN)) {
-                users.setUserId(listUser.get(i).getUserId());
                 users.setRoleSetCode(listUser.get(i).getRoleSetCode());
-
-                //break;
             } else if (listUser.get(i).getUserType().equals(Constants.AUTH_CLUSTER_ADMIN)) {
-                users.setUserId(listUser.get(i).getUserId());
                 users.setRoleSetCode(listUser.get(i).getRoleSetCode());
-                //break;
             } else if (listUser.get(i).getUserType().equals(Constants.AUTH_USER)) {
                 if (!listUser.get(i).getCpNamespace().equals(namespace)) {
                     listUser.remove(i);
-                    users.setUserId(listUser.get(i).getUserId());
                     users.setRoleSetCode(listUser.get(i).getRoleSetCode());
-                    //break;
                 } else {
-                    users.setUserId(listUser.get(i).getUserId());
                     users.setRoleSetCode(listUser.get(i).getRoleSetCode());
                 }
-                //break;
             }
         }
 
