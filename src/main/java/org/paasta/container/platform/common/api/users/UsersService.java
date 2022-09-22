@@ -419,28 +419,26 @@ public class UsersService {
      */
     public UsersList getSuperAdminRegisterCheck(String userId, String userAuthId) {
 
-        // 1. 해당계정이 KEYCLOAK 에 등록된 계정인지 확인
+        // 1. 해당 사용자 KEYCLOAK 계정 등록 여부 확인
         checkKeycloakUser(userId, userAuthId);
 
-        // 2. SUPER_ADMIN 계정 등록 유무 확인
+        // 2. CP_USERS 에 'SUPER-ADMIN' 권한 등록 여부 확인
+        // 2-1. KEYCLOAK 계정과 비교 : KEYCLOAK 내 삭제된 계정 제외 처리
         List<Users> superAdmin = userRepository.findAllByUserType(Constants.AUTH_SUPER_ADMIN);
         UsersList superAdminList = new UsersList(superAdmin);
-
-        // 3. KEYCLOAK 과 CP USER 사용자 비교 (동일한 USER-ID 이지만 KEYCLOAK 내 삭제된 계정 제외 처리)
         superAdminList = compareKeycloakUser(superAdminList);
         if (superAdminList.getItems().size() > 0) {
-            // SUPER_ADMIN 계정 존재하는 경우 메세지 반환 처리
+            // 'SUPER-ADMIN' 권한 사용자 등록된 경우 메세지 반환 처리
             throw new ResultStatusException(Constants.SUPER_ADMIN_ALREADY_REGISTERED_MESSAGE);
         }
 
-        // 4. 등록된 SUPER-ADMIN 계정 없으며, 신규 SUPER-ADMIN 계정 생성 필요
-        // 넘어온 사용자 정보로 SUPER-ADMIN 권한 계정 생성 전, 이전 USER 권한으로 맵핑된 SA, RB 삭제를 위해 USER 맵핑 리스트 전달
-        List<Users> usersList = userRepository.getUsersListWithAuthId(userId, userAuthId, defaultNamespace);
+        // 3. 현재 'SUPER-ADMIN' 권한 사용자 없음 & 신규 'SUPER-ADMIN' 사용자 생성 필요
+        // 신규 사용자와 동일한 USER-ID로 등록되어있는 맵핑정보 조회(SA, RB, Vault token 삭제를 위한 리스트 조회)
+        List<Users> usersList = userRepository.getNonExistUserBySignUp(userId, Constants.AUTH_SUPER_ADMIN, Constants.AUTH_USER, defaultNamespace);
 
-        // 5-1. KEYCLOAK 에서 삭제되었지만 남아있는 SUPER-ADMIN 계정 삭제
-        // 5-2. 신규 SUPER-ADMIN 등록 전 이전 USER 행 삭제
+        //4. 신규 사용자 생성 전 SUPER-ADMIN 권한 삭제 & 동일한 USER-ID 정보 삭제
         userRepository.deleteAllByUserType(Constants.AUTH_SUPER_ADMIN);
-        userRepository.deleteAllByUserIdAndUserAuthId(userId, userAuthId);
+        userRepository.deleteAllByUserId(userId);
 
         return new UsersList(usersList);
     }
@@ -453,23 +451,22 @@ public class UsersService {
      */
     public UsersList getUserRegisterCheck(String userId, String userAuthId) {
 
-        // 1. 해당계정이 KEYCLOAK 에 등록된 계정인지 확인
+        // 1. 해당 사용자 KEYCLOAK 계정 등록 여부 확인
         checkKeycloakUser(userId, userAuthId);
 
-        // 2. CP 에 등록된 계정인지 확인
-        Clusters clusters = clustersService.getHostClusters();
-        List<Users> users = userRepository.findAllByClusterIdAndCpNamespaceAndUserIdAndUserAuthId(clusters.getClusterId(), defaultNamespace, userId, userAuthId);
+        // 2. CP_USERS 에 사용자 DEFAULT 정보 유무 확인 ( HOST_CUSTER & DEFAULT_NAMESPACE & AUTH USER)
+        List<Users> users = userRepository.getUsersDefaultInfo(Constants.HOST_CLUSTER_TYPE, userAuthId, defaultNamespace, Constants.AUTH_USER);
         if (users.size() > 0) {
-            // USER 계정 등록인 경우 메세지 반환 처리
+            // 사용자 등록된 경우 메세지 반환 처리
             throw new ResultStatusException(Constants.USER_ALREADY_REGISTERED_MESSAGE);
         }
 
-        // 3. 해당 USER-ID / USER-AUTH-ID 로 등록된 계정 없으며, 신규 등록 필요
-        // 넘어온 사용자 정보로 계정 생성 전, KEYCLOAK 에서 삭제되었지만 동일한 USER-ID 의 맵핑된 SA, RB 삭제를 위해 USER 맵핑 리스트 전달
-        List<Users> usersList = userRepository.getUsersListWithUnequalAuthId(userId, userAuthId, defaultNamespace);
+        // 3. 해당 USER-AUTH-ID 로 등록된 계정 없음 & 신규 계정 생성 필요
+        // 신규 사용자와 동일한 USER-ID로 등록되어있는 맵핑정보 조회(SA, RB, Vault token 삭제를 위한 리스트 조회)
+        List<Users> usersList = userRepository.getNonExistUserBySignUp(userId, Constants.AUTH_SUPER_ADMIN, Constants.AUTH_USER, defaultNamespace);
 
-        // 4. USER-ID / USER-AUTH-ID 가 다른 행 삭제
-        userRepository.deleteUsersWithUnequalAuthId(userId, userAuthId);
+        //4. 신규 사용자 생성 전 동일한 USER-ID 정보 삭제
+        userRepository.deleteAllByUserId(userId);
 
         return new UsersList(usersList);
     }
@@ -757,7 +754,6 @@ public class UsersService {
     }
 
 
-
     /**
      * 클러스터 관리자 삭제 (Delete Cluster Admin)
      *
@@ -847,7 +843,8 @@ public class UsersService {
      * @return the usersList
      */
     public UsersList getClusterAdminList(String cluster, String searchName) {
-        List<Object[]> clusterAdminRawData = userRepository.getClusterAdminListByCluster(cluster, Constants.AUTH_CLUSTER_ADMIN, searchName.trim());
+        List<Object[]> clusterAdminRawData = userRepository.getClusterAdminListByCluster(cluster, Constants.AUTH_CLUSTER_ADMIN, Constants.HOST_CLUSTER_TYPE,
+                defaultNamespace, Constants.AUTH_USER, searchName.trim());
         UsersList clusterAdminList = new UsersList(clusterAdminRawData.stream().map(x -> new Users(x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7])).collect(Collectors.toList()));
         clusterAdminList = compareKeycloakUser(clusterAdminList);
         return (UsersList) commonService.setResultModel(clusterAdminList, Constants.RESULT_STATUS_SUCCESS);
@@ -899,7 +896,7 @@ public class UsersService {
      */
     public UsersDetailsList getActiveUsersList(String cluster, String namespace, String searchName) {
         // 1. 클러스터 조건, USER 권한, temp-namespace 조회,  생성날짜 조인
-        List<Object[]> usersRawData = userRepository.getActiveUsersListByCluster(cluster, defaultNamespace, Constants.AUTH_USER, searchName);
+        List<Object[]> usersRawData = userRepository.getActiveUsersListByCluster(cluster, defaultNamespace, Constants.AUTH_USER, Constants.HOST_CLUSTER_TYPE, searchName.trim());
 
         //2 Users 목록 으로 변환
         UsersList usersList = new UsersList(usersRawData.stream().map(x -> new Users(x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7])).collect(Collectors.toList()));
@@ -913,7 +910,7 @@ public class UsersService {
         List<UsersDetails> usersDetailsList = new ArrayList<>();
 
         usersList.getItems().stream().collect(Collectors.groupingBy(s -> s.getUserAuthId())).forEach((k, v) -> {
-            if(v.size() > 0) {
+            if (v.size() > 0) {
                 Users users = v.get(0);
                 UsersDetails usersDetails = new UsersDetails(users.getUserId(), users.getUserAuthId(), users.getServiceAccountName(), Constants.AUTH_USER, users.getCreated(), v);
                 usersDetailsList.add(usersDetails);
@@ -936,7 +933,7 @@ public class UsersService {
         // 1. temp-namespace 에만 속한 사용자 추출 (클러스터 관리자 계정 제외)
 
         List<Users> inactiveUsersList = userRepository.getInactiveUsersListByCluster(Constants.HOST_CLUSTER_TYPE, cluster, defaultNamespace,
-                Constants.AUTH_CLUSTER_ADMIN, Constants.AUTH_USER, searchName);
+                Constants.AUTH_CLUSTER_ADMIN, Constants.AUTH_USER, searchName.trim());
 
         UsersList usersList = new UsersList(inactiveUsersList);
         usersList = compareKeycloakUser(usersList);
@@ -1021,7 +1018,6 @@ public class UsersService {
     }
 
 
-
     /**
      * 네임스페이스 사용자 전체 삭제 (Delete Namespace All User)
      *
@@ -1030,7 +1026,7 @@ public class UsersService {
      * @return return is succeeded
      */
     public ResultStatus deleteAllUsersByClusterAndNamespace(String cluster, String namespace) {
-        if(namespace.equalsIgnoreCase(defaultNamespace)) {
+        if (namespace.equalsIgnoreCase(defaultNamespace)) {
             throw new ResultStatusException(Constants.REQUEST_COULD_NOT_BE_PROCESSED);
         }
 
