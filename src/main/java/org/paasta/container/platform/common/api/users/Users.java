@@ -61,9 +61,6 @@ public class Users {
     @Column(name = "service_account_secret", nullable = false)
     private String saSecret;
 
-    @Column(name = "service_account_token", nullable = false, length = 2000)
-    private String saToken;
-
     @Column(name = "created", nullable = false, updatable = false)
     private String created;
 
