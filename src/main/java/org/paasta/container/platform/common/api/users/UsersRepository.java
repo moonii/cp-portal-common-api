@@ -243,4 +243,12 @@ public interface UsersRepository extends JpaRepository<Users, Long>, JpaSpecific
                                                   @Param("authUser") String authUser,  @Param("defaultNamespace") String defaultNamespace);
 
     void deleteAllByUserId(String userId);
+
+
+    @Query(value = "SELECT * FROM cp_users WHERE cluster_id = :cluster " +
+            "AND user_type != :authSuperAdmin " +
+            "AND NOT (user_type = :authUser AND namespace = :defaultNamespace) ;", nativeQuery = true)
+    List<Users>  getAllUsersByClusters(@Param("cluster") String cluster, @Param("authSuperAdmin") String authSuperAdmin,
+                                      @Param("authUser") String authUser,  @Param("defaultNamespace") String defaultNamespace);
+
 }
