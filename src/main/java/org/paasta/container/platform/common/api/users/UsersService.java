@@ -1034,4 +1034,16 @@ public class UsersService {
         return new ResultStatus(Constants.RESULT_STATUS_SUCCESS, "user delete success.", 200, "user delete success.");
     }
 
+    /**
+     * 클러스터 사용자 목록 조회 (Get Cluster All User)
+     *
+     * @param cluster   the cluster
+     * @return usersList the UsersList
+     */
+    public UsersList getAllUsersByClusters(String cluster) {
+        List<Users> items = userRepository.getAllUsersByClusters(cluster, Constants.AUTH_SUPER_ADMIN, Constants.AUTH_USER, defaultNamespace);
+        UsersList usersList = new UsersList(items);
+        usersList = compareKeycloakUser(usersList);
+        return (UsersList) commonService.setResultModel(usersList, Constants.RESULT_STATUS_SUCCESS);
+    }
 }

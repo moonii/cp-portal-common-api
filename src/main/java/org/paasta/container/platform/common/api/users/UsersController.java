@@ -552,13 +552,13 @@ public class UsersController {
 
 
     /**
-     * 클러스터 내 특정 네임스페이스 사용자 목록 조회 (Get Namespace All User)
+     * 클러스터 또는 클러스터 내 네임스페이스 사용자 전체 목록 조회 (Get Cluster or Namespace All Users List)
      *
      * @param cluster   the cluster
      * @param namespace the namespace
      * @return usersList the UsersList
      */
-    @ApiOperation(value = "클러스터 내 특정 네임스페이스 사용자 목록 조회 (Get Namespace All User)", nickname = "deleteAllUsersByNamespace")
+    @ApiOperation(value = "클러스터 또는 클러스터 내 네임스페이스 사용자 전체 목록 조회 (Get Cluster or Namespace All Users List)", nickname = "getAllUsersByClusterAndNamespace")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "cluster", value = "클러스터 명", required = true, dataType = "String", paramType = "path"),
             @ApiImplicitParam(name = "namespace", value = "네임스페이스 명", required = true, dataType = "String", paramType = "path")
@@ -566,6 +566,9 @@ public class UsersController {
     @GetMapping("/clusters/{cluster:.+}/namespaces/{namespace:.+}/users")
     public UsersList getAllUsersByClusterAndNamespace(@PathVariable(value = "cluster") String cluster,
                                                       @PathVariable(value = "namespace") String namespace) {
+        if(namespace.equalsIgnoreCase(ALL_VAL)) {
+            return userService.getAllUsersByClusters(cluster);
+        }
         return userService.getAllUsersByClusterAndNamespace(cluster, namespace);
 
     }
