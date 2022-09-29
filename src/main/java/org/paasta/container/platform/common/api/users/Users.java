@@ -148,13 +148,13 @@ public class Users {
         this.userType = (String) userType;
     }
 
-    public Users(Object clusterId, Object userId, Object userAuthId, Object cpNamespace, Object userType, Object roleSetCode) {
+    public Users(Object clusterId, Object userId, Object userType, Object cpNamespace, Object roleSetCode, Object clusterName) {
         this.clusterId = (String) clusterId;
         this.userId = (String) userId;
-        this.userAuthId = (String) userAuthId;
-        this.cpNamespace = (String) cpNamespace;
         this.userType = (String) userType;
+        this.cpNamespace = (String) cpNamespace;
         this.roleSetCode = (String) roleSetCode;
+        this.clusterName = (String) clusterName;
     }
 
     /*

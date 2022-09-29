@@ -674,7 +674,7 @@ public class UsersService {
      *
      * @return the usersList
      */
-    public Object getUsersAccessInfo(String userAuthId, String cluster, String namespace) {
+    /*public Object getUsersAccessInfo(String userAuthId, String cluster, String userType, String namespace) {
 
         Users users = new Users();
 
@@ -697,8 +697,32 @@ public class UsersService {
 
         return commonService.setResultModel(users, Constants.RESULT_STATUS_SUCCESS);
 
-    }
+    }*/
 
+
+    public Object getUsersAccessInfo(String userAuthId, String cluster, String userType, String namespace) {
+
+        Users users = new Users();
+
+        List<Object[]> listUser = userRepository.findAllUsersAndClusters(cluster, userAuthId, userType);
+        UsersList usersList = new UsersList(listUser.stream().map(x -> new Users(x[0], x[1], x[2], x[3], x[4], x[5])).collect(Collectors.toList()));
+
+        if (userType.equals(Constants.AUTH_USER)){
+            usersList.setItems(usersList.getItems().stream().filter(x -> x.getCpNamespace().equals(namespace)).collect(Collectors.toList()));
+        }
+
+        if (usersList.getItems().size() > 0) {
+            users.setClusterName(usersList.getItems().get(0).getClusterName());
+            users.setRoleSetCode(usersList.getItems().get(0).getRoleSetCode());
+            if (userType.equals(Constants.AUTH_SUPER_ADMIN)) {
+                users.setRoleSetCode((Constants.DEFAULT_SUPER_ADMIN_ROLE));
+            }
+        } else {
+            throw new ResultStatusException(CommonStatusCode.NOT_FOUND.getMsg());
+        }
+
+        return commonService.setResultModel(users, Constants.RESULT_STATUS_SUCCESS);
+    }
 
     /**
      * 클러스터 정보 설정 (Set Cluster Info)
