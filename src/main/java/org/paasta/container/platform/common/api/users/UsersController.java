@@ -297,14 +297,16 @@ public class UsersController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "userAuthId", value = "사용자 인증 아이디", required = false, dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "cluster", value = "클러스터", required = false, dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "userType", value = "사용자 타입", required = false, dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "namespace", value = "네임스페이스", required = false, dataType = "String", paramType = "query")
     })
     @GetMapping(value = "/cluster/info/all/user/details")
     public Object getUsersAccessInfo(@RequestParam(required = true) String userAuthId,
                                      @RequestParam(required = true) String cluster,
+                                     @RequestParam(required = true) String userType,
                                      @RequestParam(required = true) String namespace) {
 
-        return userService.getUsersAccessInfo(userAuthId, cluster, namespace);
+        return userService.getUsersAccessInfo(userAuthId, cluster, userType, namespace);
     }
 
 

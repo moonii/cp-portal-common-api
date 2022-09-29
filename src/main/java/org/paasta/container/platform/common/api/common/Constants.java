@@ -38,6 +38,11 @@ public class Constants {
     public static final String AUTH_NAMESPACE_ADMIN = "NAMESPACE_ADMIN";
     public static final String AUTH_USER = "USER";
 
+    public static final String DEFAULT_SUPER_ADMIN_ROLE = "cluster-admin";
+    public static final String DEFAULT_CLUSTER_ADMIN_ROLE = "cluster-admin";
+    public static final String CP_ADMIN_ROLE = "cp-admin-role";
+    public static final String CP_INIT_ROLE = "cp-init-role";
+
     // sort
     public static final String DESC = "desc";
     public static final String ASC ="asc";
