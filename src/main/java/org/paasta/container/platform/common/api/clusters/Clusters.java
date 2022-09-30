@@ -52,7 +52,13 @@ public class Clusters {
     @Column(name = "status", length = 1)
     private String status;
 
+    public Clusters(Object name) {
+        this.name = (String) name;
+    }
 
+    public Clusters() {
+
+    }
 
     @PrePersist
     void preInsert() {

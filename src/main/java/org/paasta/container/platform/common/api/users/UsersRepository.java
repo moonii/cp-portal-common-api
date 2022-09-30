@@ -1,5 +1,6 @@
 package org.paasta.container.platform.common.api.users;
 
+import org.paasta.container.platform.common.api.clusters.Clusters;
 import org.paasta.container.platform.common.api.common.Constants;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -222,6 +223,9 @@ public interface UsersRepository extends JpaRepository<Users, Long>, JpaSpecific
 
 
     List<Users> findAllByClusterIdAndUserAuthId(String clusterId, String userAuthId);
+
+    @Query(value = "SELECT cp_clusters.name FROM cp_clusters WHERE cluster_id = :cluster ;", nativeQuery = true)
+    List<Object[]> findAllByClusters(@Param("cluster") String cluster);
 
     @Query(value = "SELECT cp_users.cluster_id, cp_users.user_id, cp_users.user_type, cp_users.namespace, cp_users.role_set_code, cp_clusters.name FROM cp_users " +
             "INNER JOIN cp_clusters ON cp_users.cluster_id = cp_clusters.cluster_id " +
