@@ -703,22 +703,36 @@ public class UsersService {
     public Object getUsersAccessInfo(String userAuthId, String cluster, String userType, String namespace) {
 
         Users users = new Users();
+        Clusters clusters = new Clusters();
 
-        List<Object[]> listUser = userRepository.findAllUsersAndClusters(cluster, userAuthId, userType);
-        UsersList usersList = new UsersList(listUser.stream().map(x -> new Users(x[0], x[1], x[2], x[3], x[4], x[5])).collect(Collectors.toList()));
+        if (userType.equals(Constants.AUTH_SUPER_ADMIN)) {
 
-        if (userType.equals(Constants.AUTH_USER)){
-            usersList.setItems(usersList.getItems().stream().filter(x -> x.getCpNamespace().equals(namespace)).collect(Collectors.toList()));
-        }
+            List<Object[]> listCluster = userRepository.findAllByClusters(cluster);
+            ClustersList clustersList = new ClustersList(listCluster.stream().map(x -> new Clusters(x[0])).collect(Collectors.toList()));
 
-        if (usersList.getItems().size() > 0) {
-            users.setClusterName(usersList.getItems().get(0).getClusterName());
-            users.setRoleSetCode(usersList.getItems().get(0).getRoleSetCode());
-            if (userType.equals(Constants.AUTH_SUPER_ADMIN)) {
+            if (clustersList.getItems().size() > 0) {
+                users.setClusterName(clustersList.getItems().get(0).getName());
                 users.setRoleSetCode((Constants.DEFAULT_SUPER_ADMIN_ROLE));
+            } else {
+                throw new ResultStatusException(CommonStatusCode.NOT_FOUND.getMsg());
             }
-        } else {
-            throw new ResultStatusException(CommonStatusCode.NOT_FOUND.getMsg());
+
+        } else if (userType.equals(Constants.AUTH_USER) || userType.equals(Constants.AUTH_CLUSTER_ADMIN)) {
+
+            List<Object[]> listUser = userRepository.findAllUsersAndClusters(cluster, userAuthId, userType);
+            UsersList usersList = new UsersList(listUser.stream().map(x -> new Users(x[0], x[1], x[2], x[3], x[4], x[5])).collect(Collectors.toList()));
+
+            if (userType.equals(Constants.AUTH_USER)) {
+                usersList.setItems(usersList.getItems().stream().filter(x -> x.getCpNamespace().equals(namespace)).collect(Collectors.toList()));
+            }
+
+            if (usersList.getItems().size() > 0) {
+                users.setClusterName(usersList.getItems().get(0).getClusterName());
+                users.setRoleSetCode(usersList.getItems().get(0).getRoleSetCode());
+
+            } else {
+                throw new ResultStatusException(CommonStatusCode.NOT_FOUND.getMsg());
+            }
         }
 
         return commonService.setResultModel(users, Constants.RESULT_STATUS_SUCCESS);
