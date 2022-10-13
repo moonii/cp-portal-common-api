@@ -1084,4 +1084,23 @@ public class UsersService {
         usersList = compareKeycloakUser(usersList);
         return (UsersList) commonService.setResultModel(usersList, Constants.RESULT_STATUS_SUCCESS);
     }
+
+
+
+    /**
+     * 서비스 브로커를 위한 SUPER-ADMIN 등록 여부 조회 (Check Auth 'SUPER-ADMIN' User Registration for Service Broker)
+     *
+     * @return the resultStatus
+     */
+    public ResultStatus isExistsCpPortalAdmin() {
+        List<Users> superAdmin = userRepository.findAllByUserType(Constants.AUTH_SUPER_ADMIN);
+        UsersList superAdminList = new UsersList(superAdmin);
+        superAdminList = compareKeycloakUser(superAdminList);
+        if (superAdminList.getItems().size() > 0) {
+            // 'SUPER-ADMIN' 권한 사용자 등록된 경우
+            throw new ResultStatusException(Constants.SUPER_ADMIN_ALREADY_REGISTERED_MESSAGE);
+        }
+        // 'SUPER-ADMIN' 권한 사용자 미등록된 경우
+        return new ResultStatus(Constants.RESULT_STATUS_SUCCESS, Constants.USER_REGISTRATION_AVAILABLE_MESSAGE);
+    }
 }

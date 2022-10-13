@@ -576,5 +576,18 @@ public class UsersController {
     }
 
 
+    /**
+     * 서비스 브로커를 위한 SUPER-ADMIN 등록 여부 조회 (Check Auth 'SUPER-ADMIN' User Registration for Service Broker)
+     *
+     * @return the resultStatus
+     */
+    @ApiOperation(value = "서비스 브로커를 위한 SUPER-ADMIN 등록 여부 조회 (Check Auth 'SUPER-ADMIN' User Registration for Service Broker)", nickname = "isExistSuperAdmin")
+    @GetMapping(value = "/isExistsCpPortalAdmin")
+    public ResultStatus isExistsCpPortalAdmin() {
+        return userService.isExistsCpPortalAdmin();
+    }
+
+
+
 }
 
