@@ -26,9 +26,6 @@ public class ServiceInstance {
     @Column(name = "user_id")
     private String userId;
 
-    @Column(name = "caas_namespace")
-    private String namespace;
-
     @Column(name = "organization_guid")
     private String organizationGuid;
 }
