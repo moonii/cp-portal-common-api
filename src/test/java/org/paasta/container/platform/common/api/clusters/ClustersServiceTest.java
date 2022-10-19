@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.paasta.container.platform.common.api.common.CommonService;
 import org.paasta.container.platform.common.api.common.Constants;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -37,6 +38,8 @@ public class ClustersServiceTest {
     private static final String ADMIN_ROLE = "paas-ta-container-platform-admin-role";
     private static final String SECRET_NAME = "paasta-token-jqrx4";
     private static final String TOKEN_NAME = "cp_admin";
+    @Value("${cp.defaultNamespace}")
+    private String defaultNamespace;
 
     private static Clusters createdCluster = null;
     private static ClustersList finalClustersList = null;
@@ -59,8 +62,6 @@ public class ClustersServiceTest {
         createdCluster = new Clusters();
         createdCluster.setClusterId(CLUSTER);
         createdCluster.setName(CLUSTER);
-        createdCluster.setClusterApiUrl(CLUSTER_API_URL);
-        createdCluster.setClusterToken(CLUSTER_ADMIN_TOKEN);
         createdCluster.setCreated("2020-11-05 13:26:24");
         createdCluster.setLastModified("2020-11-05 13:26:24");
 
@@ -80,8 +81,6 @@ public class ClustersServiceTest {
         Clusters clusters = new Clusters();
         clusters.setName(CLUSTER);
         clusters.setClusterId(CLUSTER);
-        clusters.setClusterApiUrl(CLUSTER_API_URL);
-        clusters.setClusterToken(CLUSTER_ADMIN_TOKEN);
 
         when(clustersRepository.save(clusters)).thenReturn(createdCluster);
 
@@ -110,16 +109,26 @@ public class ClustersServiceTest {
     }
 
     @Test
+    public void getClustersListByUser() {
+
+        when(clustersRepository.findClustersUsedByUser(Constants.AUTH_USER, defaultNamespace, USER_ID)).thenReturn(clustersList);
+
+        clustersService.getClustersListByUser(USER_ID);
+    }
+
+    @Test
     public void getHostClusters() {
         when(clustersRepository.findByClusterType(Constants.HOST_CLUSTER_TYPE)).thenReturn(finalHostCluster);
+        clustersService.getHostClusters();
         assertEquals(finalHostCluster.getClusterType(), Constants.HOST_CLUSTER_TYPE);
     }
 
     @Test
     public void updateClusters() {
+        createdCluster.setDescription("test");
+        when(clustersRepository.findByClusterId(createdCluster.getClusterId())).thenReturn(createdCluster);
         when(clustersRepository.save(createdCluster)).thenReturn(createdCluster);
 
         Clusters finalClusters = clustersService.updateClusters(createdCluster);
-        assertNotNull(finalClusters);
     }
 }
