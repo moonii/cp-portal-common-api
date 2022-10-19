@@ -43,7 +43,7 @@ public class ServiceInstanceServiceTest {
         serviceInstance.setUserId(USER_ID);
         serviceInstance.setServiceInstanceId(SERVICE_INSTANCE_ID);
         serviceInstance.setOrganizationGuid(SERVICE_ORG_ID);
-        serviceInstance.setNamespace(NAMESPACE);
+//        serviceInstance.setNamespace(NAMESPACE);
 
         serviceInstanceList = new ArrayList<>();
         serviceInstanceList.add(serviceInstance);

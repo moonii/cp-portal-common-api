@@ -1,5 +1,6 @@
 package org.paasta.container.platform.common.api.hclTemplates;
 
+import org.apache.tomcat.util.bcel.Const;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,6 +33,7 @@ import static org.mockito.Mockito.when;
 public class HclTemplatesServiceTest {
 
     private static final long TEST_ID = 1;
+    private static final String PROVIDER = "AWS";
 
     @Mock
     CommonService commonService;
@@ -42,6 +44,7 @@ public class HclTemplatesServiceTest {
 
     private static HclTemplates finalHclTemplates = null;
     private static HclTemplatesList finalHclTemplatesList = null;
+    private static List<HclTemplates> hclTemplatesList = null;
 
     @Before
     public void setUp() {
@@ -49,6 +52,9 @@ public class HclTemplatesServiceTest {
         finalHclTemplates.setResultCode(Constants.RESULT_STATUS_SUCCESS);
 
         finalHclTemplatesList = new HclTemplatesList();
+
+        hclTemplatesList = new ArrayList<>();
+        finalHclTemplatesList.setItems(hclTemplatesList);
     }
 
     @Test
@@ -59,6 +65,16 @@ public class HclTemplatesServiceTest {
 
         HclTemplates hclTemplates = hclTemplatesService.createHclTemplates(inHclTemplates);
         assertEquals(hclTemplates, finalHclTemplates);
+
+    }
+
+    @Test
+    public void createHclTemplates_Exception() {
+        HclTemplates inHclTemplates = new HclTemplates();
+        when(hclTemplatesRepository.save(inHclTemplates)).thenThrow(new NullPointerException());
+        when(commonService.setResultModel(finalHclTemplates, Constants.RESULT_STATUS_FAIL)).thenReturn(finalHclTemplates);
+
+        HclTemplates hclTemplates = hclTemplatesService.createHclTemplates(inHclTemplates);
 
     }
 
@@ -81,6 +97,15 @@ public class HclTemplatesServiceTest {
     }
 
     @Test
+    public void getHclTemplatesListByProvider() {
+        when(hclTemplatesRepository.findAllByProvider(PROVIDER)).thenReturn(hclTemplatesList);
+        when(commonService.setResultModel(finalHclTemplatesList, Constants.RESULT_STATUS_SUCCESS)).thenReturn(finalHclTemplatesList);
+
+        hclTemplatesService.getHclTemplatesListByProvider(PROVIDER);
+
+    }
+
+    @Test
     public void modifyHclTemplates() {
         HclTemplates inHclTemplates = new HclTemplates();
         when(hclTemplatesRepository.save(inHclTemplates)).thenReturn(finalHclTemplates);
@@ -88,6 +113,15 @@ public class HclTemplatesServiceTest {
 
         HclTemplates hclTemplates = hclTemplatesService.modifyHclTemplates(inHclTemplates);
         assertEquals(hclTemplates, finalHclTemplates);
+    }
+
+    @Test
+    public void modifyHclTemplates_Exception() {
+        HclTemplates inHclTemplates = new HclTemplates();
+        when(hclTemplatesRepository.save(inHclTemplates)).thenThrow(new NullPointerException("test"));
+        when(commonService.setResultModel(finalHclTemplates, Constants.RESULT_STATUS_FAIL)).thenReturn(finalHclTemplates);
+
+        HclTemplates hclTemplates = hclTemplatesService.modifyHclTemplates(inHclTemplates);
     }
 
     @Test

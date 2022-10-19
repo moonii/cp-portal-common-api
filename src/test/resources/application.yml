@@ -8,6 +8,9 @@ spring:
 cpNamespace:
   defaultNamespace: temp-namespace         #paas-ta-container-platform-temp-namespace
 
+keycloak:
+  cpRealm: test
+
 ---
 spring:
   profiles:

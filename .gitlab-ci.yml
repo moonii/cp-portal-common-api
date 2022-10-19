@@ -3,6 +3,7 @@ include:
   - project: '$MANAGED_PROJECT'
     ref: '$CI_COMMIT_REF_NAME'
     file: '/.gitlab-ci/.build-gradle-template.yml'
+  - local: '/.gitlab-ci/.check-sonarqube-template.yml'
   - project: '$MANAGED_PROJECT'
     ref: '$CI_COMMIT_REF_NAME'
     file: '/.gitlab-ci/.build-image-template.yml'

@@ -10,6 +10,8 @@ import org.paasta.container.platform.common.api.common.Constants;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
@@ -64,11 +66,32 @@ public class CloudAccountsServiceTest {
     }
 
     @Test
+    public void createCloudAccounts_Exception() {
+        CloudAccounts inCloudAccounts = new CloudAccounts();
+        when(cloudAccountsRepository.save(inCloudAccounts)).thenThrow(new NullPointerException());
+        when(commonService.setResultModel(finalCloudAccounts, Constants.RESULT_STATUS_FAIL)).thenReturn(finalCloudAccounts);
+
+        CloudAccounts cloudAccounts = cloudAccountsService.createCloudAccounts(inCloudAccounts);
+
+    }
+
+    @Test
     public void getCloudAccounts() {
         when(cloudAccountsRepository.findById(TEST_ID)).thenReturn(Optional.of(finalCloudAccounts));
         CloudAccounts cloudAccounts = cloudAccountsService.getCloudAccounts(TEST_ID);
 
         assertNotNull(cloudAccounts);
+    }
+
+    @Test
+    public void getCloudAccountsListByProvider() {
+        List<CloudAccounts> list = new ArrayList<>();
+        when(cloudAccountsRepository.findAllByProvider(TEST_NAME)).thenReturn(list);
+        CloudAccountsList finalList = new CloudAccountsList();
+        finalList.setItems(list);
+        when(commonService.setResultModel(finalList, Constants.RESULT_STATUS_SUCCESS)).thenReturn(finalList);
+
+        cloudAccountsService.getCloudAccountsListByProvider(TEST_NAME);
     }
 
     @Test
@@ -85,12 +108,11 @@ public class CloudAccountsServiceTest {
         CloudAccounts inCloudAccounts = new CloudAccounts();
         inCloudAccounts.setId(TEST_ID);
         inCloudAccounts.setName(TEST_NAME);
-        when(cloudAccountsRepository.getOne(inCloudAccounts.getId())).thenReturn(finalCloudAccounts);
+        when(cloudAccountsRepository.findById(inCloudAccounts.getId())).thenReturn(Optional.ofNullable(finalCloudAccounts));
         when(cloudAccountsRepository.save(finalCloudAccounts)).thenReturn(finalCloudAccounts);
         when(commonService.setResultModel(finalCloudAccounts, Constants.RESULT_STATUS_SUCCESS)).thenReturn(finalCloudAccounts);
 
         CloudAccounts cloudAccounts = cloudAccountsService.modifyCloudAccounts(inCloudAccounts);
-        assertEquals(cloudAccounts, finalCloudAccounts);
 
     }
 
