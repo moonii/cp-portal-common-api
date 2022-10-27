@@ -1,6 +1,7 @@
 package org.paasta.container.platform.common.api.exception;
 
 import lombok.Data;
+import org.paasta.container.platform.common.api.common.Constants;
 
 /**
  * Error Message 클래스

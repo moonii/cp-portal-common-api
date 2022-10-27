@@ -21,6 +21,12 @@ import java.time.format.DateTimeFormatter;
 @Data
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Clusters {
+    @Transient
+    private String resultCode;
+
+    @Transient
+    private String resultMessage;
+
     @Id
     @Column(name = "cluster_id")
     private String clusterId;

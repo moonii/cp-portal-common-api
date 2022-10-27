@@ -20,6 +20,8 @@ import java.util.List;
 public interface ClustersRepository extends JpaRepository<Clusters, Long> {
     Clusters findByClusterId(String clusterId);
 
+    void deleteByClusterId(String clusterId);
+
     List<Clusters> findAllByOrderByName();
 
     Clusters findByClusterType(String clusterType);
