@@ -1,3 +1,4 @@
+/*
 package org.paasta.container.platform.common.api.privateRegistry;
 
 import org.junit.Before;
@@ -47,4 +48,4 @@ public class PrivateRegistryServiceTest {
 
         privateRegistryService.getPrivateRegistry(IMAGE_NAME);
     }
-}
+}*/
