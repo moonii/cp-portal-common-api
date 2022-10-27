@@ -16,6 +16,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 /**
@@ -83,18 +84,39 @@ public class ClustersServiceTest {
         clusters.setClusterId(CLUSTER);
 
         when(clustersRepository.save(clusters)).thenReturn(createdCluster);
+        when(commonService.setResultModel(createdCluster, Constants.RESULT_STATUS_SUCCESS)).thenReturn(createdCluster);
 
         Clusters finalClusters = clustersService.createClusters(clusters);
-        assertNotNull(finalClusters);
+    }
+
+    @Test
+    public void createClusters_Ex() {
+        Clusters clusters = new Clusters();
+        clusters.setName(CLUSTER);
+        clusters.setClusterId(CLUSTER);
+
+        when(clustersRepository.save(clusters)).thenThrow(new NullPointerException());
+        when(commonService.setResultModel(createdCluster, Constants.RESULT_STATUS_FAIL)).thenReturn(createdCluster);
+
+        Clusters finalClusters = clustersService.createClusters(clusters);
     }
 
     @Test
     public void getClusters() {
         when(clustersRepository.findByClusterId(CLUSTER)).thenReturn(createdCluster);
+        when(commonService.setResultModel(createdCluster, Constants.RESULT_STATUS_SUCCESS)).thenReturn(createdCluster);
 
         Clusters finalCluster = clustersService.getClusters(CLUSTER);
         assertEquals(finalCluster, createdCluster);
     }
+
+//    @Test
+//    public void getClusters_Ex() {
+//        when(clustersRepository.findByClusterId(CLUSTER)).thenThrow(new NullPointerException());
+//        when(commonService.setResultModel(createdCluster, Constants.RESULT_STATUS_FAIL)).thenReturn(createdCluster);
+//
+//        Clusters finalCluster = clustersService.getClusters(CLUSTER);
+//    }
 
     @Test
     public void getClustersList() {
@@ -109,9 +131,30 @@ public class ClustersServiceTest {
     }
 
     @Test
+    public void getClustersList_Ex() {
+        when(clustersRepository.findAllByOrderByName()).thenThrow(new NullPointerException());
+        ClustersList createdClustersList = new ClustersList();
+        createdClustersList.setItems(clustersList);
+        when(commonService.setResultModel(createdClustersList, Constants.RESULT_STATUS_FAIL)).thenReturn(finalClustersList);
+
+        ClustersList finalClusterList = clustersService.getClustersList();
+
+    }
+
+    @Test
     public void getClustersListByUser() {
 
         when(clustersRepository.findClustersUsedByUser(Constants.AUTH_USER, defaultNamespace, USER_ID)).thenReturn(clustersList);
+        when(commonService.setResultModel(clustersList, Constants.RESULT_STATUS_SUCCESS)).thenReturn(clustersList);
+
+        clustersService.getClustersListByUser(USER_ID);
+    }
+
+    @Test
+    public void getClustersListByUser_Ex() {
+
+        when(clustersRepository.findClustersUsedByUser(Constants.AUTH_USER, defaultNamespace, USER_ID)).thenThrow(new NullPointerException());
+        when(commonService.setResultModel(clustersList, Constants.RESULT_STATUS_FAIL)).thenReturn(clustersList);
 
         clustersService.getClustersListByUser(USER_ID);
     }
@@ -119,6 +162,15 @@ public class ClustersServiceTest {
     @Test
     public void getHostClusters() {
         when(clustersRepository.findByClusterType(Constants.HOST_CLUSTER_TYPE)).thenReturn(finalHostCluster);
+        when(commonService.setResultModel(finalHostCluster, Constants.RESULT_STATUS_SUCCESS));
+        clustersService.getHostClusters();
+        assertEquals(finalHostCluster.getClusterType(), Constants.HOST_CLUSTER_TYPE);
+    }
+
+    @Test
+    public void getHostClusters_Ex() {
+        when(clustersRepository.findByClusterType(Constants.HOST_CLUSTER_TYPE)).thenThrow(new NullPointerException());
+        when(commonService.setResultModel(finalHostCluster, Constants.RESULT_STATUS_FAIL));
         clustersService.getHostClusters();
         assertEquals(finalHostCluster.getClusterType(), Constants.HOST_CLUSTER_TYPE);
     }
@@ -128,7 +180,13 @@ public class ClustersServiceTest {
         createdCluster.setDescription("test");
         when(clustersRepository.findByClusterId(createdCluster.getClusterId())).thenReturn(createdCluster);
         when(clustersRepository.save(createdCluster)).thenReturn(createdCluster);
+        when(commonService.setResultModel(createdCluster, Constants.RESULT_STATUS_SUCCESS)).thenReturn(createdCluster);
 
         Clusters finalClusters = clustersService.updateClusters(createdCluster);
+    }
+
+    @Test
+    public void deleteClusters() {
+        clustersService.deleteClusters("test");
     }
 }

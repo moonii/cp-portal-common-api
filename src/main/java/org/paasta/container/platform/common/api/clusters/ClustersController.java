@@ -103,5 +103,19 @@ public class ClustersController {
         return clustersService.updateClusters(clusters);
     }
 
+    /**
+     * Clusters 정보 삭제(Delete Clusters Info)
+     *
+     * @return the clusters
+     */
+    @ApiOperation(value="Clusters 정보 삭제(Delete Clusters Info)", nickname="deleteClusters")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "clusters", value = "클러스터 정보", required = true, dataType = "Clusters", paramType = "body")
+    })
+    @DeleteMapping(value = "/{clusterId:.+}")
+    public Clusters deleteClusters(@PathVariable String clusterId) {
+        return clustersService.deleteClusters(clusterId);
+    }
+
 
 }
