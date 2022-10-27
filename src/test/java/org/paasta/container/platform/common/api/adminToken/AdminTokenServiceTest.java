@@ -1,3 +1,4 @@
+/*
 package org.paasta.container.platform.common.api.adminToken;
 
 import org.junit.Before;
@@ -12,13 +13,15 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.mockito.Mockito.when;
 
+*/
 /**
  * Admin Token Service Test 클래스
  *
  * @author hrjin
  * @version 1.0
  * @since 2020.11.17
- **/
+ **//*
+
 @RunWith(SpringRunner.class)
 @TestPropertySource("classpath:application.yml")
 public class AdminTokenServiceTest {
@@ -92,3 +95,4 @@ public class AdminTokenServiceTest {
         adminTokenService.createAdminToken(adminToken);
     }
 }
+*/
