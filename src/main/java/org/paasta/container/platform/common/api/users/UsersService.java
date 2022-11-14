@@ -334,52 +334,6 @@ public class UsersService {
     }
 
 
-    /*  *//**
-     * Admin Portal 활성화 사용자 목록 조회 (Get active users list of admin portal)
-     * <p>
-     * * 개발 0809 사용자 목록조회 -active
-     *
-     * @return the users list
-     *//*
-    public UsersAdminList getActiveUsersList(String cluster, String searchName) {
-
-        UsersList usersList = new UsersList();
-        // 1. temp-namespace 제외, 클러스터 관리자 id 제외, created 날짜 temp namespace로 join 한 리스트
-        List<Object[]> listUser = userRepository.findAllByUserMappingNamespaceAndRole(propertyService.getDefaultNamespace(), searchName, Constants.AUTH_CLUSTER_ADMIN);
-
-        // 2. Users 객체 형태로 변환
-        List<Users> usersAdminMetaList = listUser.stream().map(x -> new Users(x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7])).collect(Collectors.toList());
-
-        // 3. Keycloak 사용자 비교처리
-        usersList.setItems(usersAdminMetaList);
-        usersList = compareKeycloakUser(usersList);
-
-        // 4. User ID만 추출
-        List<String> userIdList = usersList.getItems().stream().map(Users::getUserId).collect(Collectors.toList());
-        userIdList = userIdList.stream().distinct().collect(Collectors.toList());
-
-        // 5. User ID 별 속한 Namespace & Role 리스트화
-        List<UsersAdmin> usersAdminList = new ArrayList<>();
-
-        for (String userId : userIdList) {
-            List<Users> userNamespaceRoleMappingList = usersList.getItems().stream().filter(x -> x.getUserId().equals(userId)).collect(Collectors.toList());
-
-            //MetaData Model 형식으로 리스트 변환
-            List<UsersAdminMetaData> usersAdminMetaDataList = userNamespaceRoleMappingList.stream().map(x ->
-                    new UsersAdminMetaData(x.getCpNamespace(), x.getUserType(), x.getRoleSetCode())).collect(Collectors.toList());
-
-            Users users = userNamespaceRoleMappingList.get(0);
-            UsersAdmin usersAdmin = new UsersAdmin(CommonStatusCode.OK.getMsg(), userId, users.getUserAuthId(), users.getServiceAccountName(),
-                    users.getCreated(), usersAdminMetaDataList);
-
-            usersAdminList.add(usersAdmin);
-        }
-
-        UsersAdminList returnList = new UsersAdminList();
-        returnList.setItems(usersAdminList);
-
-        return (UsersAdminList) commonService.setResultModel(returnList, Constants.RESULT_STATUS_SUCCESS);
-    }*/
 
 
     /**
@@ -529,30 +483,6 @@ public class UsersService {
     }
 
 
-    /*
-     */
-/**
- * 클러스터 관리자 계정 조회(Get cluster admin info)
- *
- * @return the usersList
- *//*
-
-    public UsersList getClusterAdminInfo(String searchName) {
-        List<Users> clusterAdmin = userRepository.findAllByUserTypeAndLikeUserId(Constants.AUTH_CLUSTER_ADMIN, searchName.trim());
-
-        UsersList returnCA = new UsersList(Constants.RESULT_STATUS_SUCCESS, CommonStatusCode.OK.getMsg());
-        returnCA.setItems(clusterAdmin);
-
-        returnCA = compareKeycloakUser(returnCA);
-
-        for (Users users : returnCA.getItems()) {
-            users.setCpNamespace(Constants.NULL_REPLACE_TEXT);
-            users.setServiceAccountName(Constants.NULL_REPLACE_TEXT);
-        }
-
-        return returnCA;
-    }
-*/
 
 
     /**
@@ -574,100 +504,8 @@ public class UsersService {
     }
 
 
-    /*  *//**
-     * Admin Portal 비활성화 사용자 목록 조회(Get Inactive Users list of admin portal)
-     *
-     * @return the users list
-     *//*
-    public UsersAdminList getInActiveUsersList(String searchName) {
-
-        UsersList usersList = new UsersList();
-
-        // 1. temp-namespace 에만 속한 사용자 추출 (클러스터 관리자 계정 제외)
-        List<Users> tempNamespaceUserList = userRepository.findByOnlyTempNamespaceUser(defaultNamespace, searchName, Constants.AUTH_CLUSTER_ADMIN);
-
-        // 2. keycloak 사용자 비교처리
-        usersList.setItems(tempNamespaceUserList);
-        usersList = compareKeycloakUser(usersList);
-
-        // 3. UsersAdmin 형식으로 리스트 변환
-        List<UsersAdmin> items = usersList.getItems().stream()
-                .map(x -> new UsersAdmin(x.getUserId(), x.getUserAuthId(), x.getServiceAccountName(), x.getCreated())).collect(Collectors.toList());
 
 
-        UsersAdminList usersAdminList = new UsersAdminList();
-        usersAdminList.setItems(items);
-
-        return (UsersAdminList) commonService.setResultModel(usersAdminList, Constants.RESULT_STATUS_SUCCESS);
-    }*/
-
-
-    /*   */
-
-    /**
-     * 수정해야함
-     * 사용자 상세 조회(Get user info details)
-     *
-     * @return the usersList
-     *//*
-    public UsersAdmin getUserInfoDetails(String userId, String userType) {
-
-        UsersList usersList = new UsersList();
-        UsersAdmin returnUserAdmin = null;
-
-        Users userInfo = userRepository.findAllByCpNamespaceAndUserIdAndUserType(propertyService.getDefaultNamespace(), userId, userType).get(0);
-
-
-        // 1.mapping된 namespace & role , created 날짜 temp namespace로 join 한 리스트
-        List<Object[]> listUser = userRepository.findAllByUserMappingNamespaceAndRoleDetails(propertyService.getDefaultNamespace(), userId, userType);
-
-        if (listUser.size() < 1) {
-            // 네임스페이스와 맵핑되지 않은 사용자
-            returnUserAdmin = new UsersAdmin(Constants.USER_NOT_MAPPED_TO_THE_NAMESPACE_MESSAGE, userInfo.getUserId(), userInfo.getUserAuthId(),
-                    userInfo.getServiceAccountName(), userInfo.getCreated(), null);
-
-        } else {
-            // 네임스페이스와 맵핑된 사용자
-            // 2. Users 객체 형태로 변환
-            List<Users> usersAdminMetaList = listUser.stream().map(x -> new Users(x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7], x[8], x[9])).collect(Collectors.toList());
-
-            // 3. Keycloak 사용자 비교처리
-            usersList.setItems(usersAdminMetaList);
-            usersList = compareKeycloakUser(usersList);
-
-            // 3-1. keycloak 비교처리 후 네임스페이스와 맵핑되지 않은 사용자
-            if (usersList.getItems().size() < 1) {
-                returnUserAdmin = new UsersAdmin(Constants.USER_NOT_MAPPED_TO_THE_NAMESPACE_MESSAGE, userInfo.getUserId(), userInfo.getUserAuthId(),
-                        userInfo.getServiceAccountName(), userInfo.getCreated(), null);
-            } else {
-
-                List<UsersAdminMetaData> metaDataList = new ArrayList<>();
-
-                //4. MetaData Model 형식으로 리스트 변환
-                for (Users users : usersList.getItems()) {
-                    UsersAdminMetaData usersAdminMetaData = new UsersAdminMetaData(users.getCpNamespace(), users.getUserType(), users.getRoleSetCode(), users.getSaSecret());
-                    metaDataList.add(usersAdminMetaData);
-                }
-
-                returnUserAdmin = new UsersAdmin(CommonStatusCode.OK.getMsg(), userInfo.getUserId(), userInfo.getUserAuthId(),
-                        userInfo.getServiceAccountName(), userInfo.getCreated(), metaDataList);
-
-            }
-        }
-
-        //5. 클러스터 관리자의 경우 클러스터 정보 셋팅
-     *//*   if(userType.equalsIgnoreCase(Constants.AUTH_CLUSTER_ADMIN)) {
-            returnUserAdmin.setClusterName(userInfo.getClusterName());
-            returnUserAdmin.setClusterApiUrl(userInfo.getClusterApiUrl());
-            returnUserAdmin.setClusterToken(userInfo.getClusterToken());
-        }
-*//*
-
-        return (UsersAdmin) commonService.setResultModel(returnUserAdmin, Constants.RESULT_STATUS_SUCCESS);
-
-
-    }
-*/
 
     /*
      * 하나의 Cluster 내 여러 Namespace 에 속한 User 에 대한 상세 조회(Get Users Access Info)
