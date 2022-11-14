@@ -31,8 +31,6 @@ import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
@@ -132,7 +130,6 @@ public class UsersServiceTest {
         users.setClusterName(CLUSTER);
         users.setCpNamespace(NAMESPACE);
         users.setServiceAccountName(USER_ID);
-        users.setSaSecret(SECRET_NAME);
         users.setRoleSetCode(ROLE);
         users.setUserType("USER");
 

@@ -1,6 +1,4 @@
 package org.paasta.container.platform.common.api.users;
-
-import org.paasta.container.platform.common.api.clusters.Clusters;
 import org.paasta.container.platform.common.api.common.Constants;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -100,16 +98,6 @@ public interface UsersRepository extends JpaRepository<Users, Long>, JpaSpecific
                     " and A.user_id like %:searchParam%" +
                     " order by B.created desc", nativeQuery = true)
     List<Object[]> findAllByUserMappingNamespaceAndRole(@Param("namespace") String namespace, @Param("searchParam") String searchParam, @Param("clusterAdmin") String clusterAdmin);
-
-
-    @Query(value =
-            "select  A.id, A.user_id, A.user_auth_id, A.service_account_name, A.namespace, A.user_type, A.role_set_code, A.service_account_secret, A.cluster_id, B.created" +
-                    " from" +
-                    " (select * from cp_users where namespace != :namespace and user_id = :userId) A ," +
-                    " (select * From cp_users where namespace = :namespace and user_id = :userId and user_type = :userType) B" +
-                    " where A.user_id = B.user_id order by A.namespace", nativeQuery = true)
-    List<Object[]> findAllByUserMappingNamespaceAndRoleDetails(@Param("namespace") String namespace, @Param("userId") String userId, @Param("userType") String userType);
-
 
     @Query(value =
             "select a.user_id, a.user_auth_id, if(isnull(b.user_id), 'N', 'Y') as is_nsadmin" +

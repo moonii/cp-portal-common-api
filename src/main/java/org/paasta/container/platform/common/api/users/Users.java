@@ -58,9 +58,6 @@ public class Users {
     @Column(name = "service_account_name", nullable = false)
     private String serviceAccountName;
 
-    @Column(name = "service_account_secret", nullable = false)
-    private String saSecret;
-
     @Column(name = "created", nullable = false, updatable = false)
     private String created;
 
@@ -112,21 +109,6 @@ public class Users {
     }
 
 
-   public Users(Object id, Object userId, Object userAuthId, Object serviceAccountName, Object cpNamespace, Object userType, Object roleSetCode, Object saSecret,
-                 Object clusterId , Object created) {
-        this.id =  Integer.parseInt(String.valueOf(id));
-        this.userId = (String) userId;
-        this.userAuthId = (String) userAuthId;
-        this.serviceAccountName = (String) serviceAccountName;
-        this.cpNamespace = (String) cpNamespace;
-        this.userType = (String) userType;
-        this.roleSetCode = (String) roleSetCode;
-        this.saSecret = (String) saSecret;
-        this.clusterId = (String) clusterId;
-        this.created = (String) created;
-    }
-
-
     public Users(Object userId, Object userAuthId, Object isNsAdmin) {
         this.userId = (String) userId;
         this.userAuthId = (String) userAuthId;
@@ -157,18 +139,6 @@ public class Users {
         this.clusterName = (String) clusterName;
     }
 
-    /*
-    public Users(Object id, Object userId, Object userAuthId, Object serviceAccountName, Object cpNamespace, Object roleSetCode, Object userType, Object created) {
-        this.id =  Integer.parseInt(String.valueOf(id));
-        this.userId = (String) userId;
-        this.userAuthId = (String) userAuthId;
-        this.serviceAccountName = (String) serviceAccountName;
-        this.cpNamespace = (String) cpNamespace;
-        this.roleSetCode = (String) roleSetCode;
-        this.userType = (String) userType;
-        this.created = (String) created;
-    }
-*/
 
     @PreUpdate
     void preUpdate() {

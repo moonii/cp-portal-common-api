@@ -3,7 +3,6 @@ package org.paasta.container.platform.common.api.common;
 import org.paasta.container.platform.common.api.exception.CommonErrCode;
 import org.paasta.container.platform.common.api.exception.ErrorMessage;
 import org.paasta.container.platform.common.api.users.Users;
-import org.paasta.container.platform.common.api.users.UsersAdmin;
 import org.paasta.container.platform.common.api.users.UsersList;
 
 /**
@@ -85,8 +84,6 @@ public class Constants {
 
     public static final Users USER_NOT_FOUND = new Users(Constants.RESULT_STATUS_FAIL, CommonStatusCode.NOT_FOUND.getMsg());
     public static final Users USER_NOT_FOUND_IN_KEYCLOAK = new Users(Constants.RESULT_STATUS_FAIL, Constants.USER_NOT_REGISTERED_IN_KEYCLOAK_MESSAGE);
-
-    public static final UsersAdmin USER_NOT_MAPPED_TO_THE_NAMESPACE = new UsersAdmin(Constants.RESULT_STATUS_SUCCESS, USER_NOT_MAPPED_TO_THE_NAMESPACE_MESSAGE);
 
     private Constants() {
         throw new IllegalStateException();
