@@ -144,7 +144,7 @@ public class ClustersServiceTest {
     @Test
     public void getClustersListByUser() {
 
-        when(clustersRepository.findClustersUsedByUser(Constants.AUTH_USER, defaultNamespace, USER_ID)).thenReturn(clustersList);
+        when(clustersRepository.findClustersUsedByUser(Constants.AUTH_CLUSTER_ADMIN, USER_ID)).thenReturn(clustersList);
         when(commonService.setResultModel(clustersList, Constants.RESULT_STATUS_SUCCESS)).thenReturn(clustersList);
 
         clustersService.getClustersListByUser(USER_ID);
@@ -153,7 +153,7 @@ public class ClustersServiceTest {
     @Test
     public void getClustersListByUser_Ex() {
 
-        when(clustersRepository.findClustersUsedByUser(Constants.AUTH_USER, defaultNamespace, USER_ID)).thenThrow(new NullPointerException());
+        when(clustersRepository.findClustersUsedByUser(Constants.AUTH_CLUSTER_ADMIN, USER_ID)).thenThrow(new NullPointerException());
         when(commonService.setResultModel(clustersList, Constants.RESULT_STATUS_FAIL)).thenReturn(clustersList);
 
         clustersService.getClustersListByUser(USER_ID);

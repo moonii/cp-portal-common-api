@@ -81,7 +81,7 @@ public class ClustersService {
     public ClustersList getClustersListByUser(String userAuthId) {
         ClustersList clustersList = new ClustersList();
         try {
-            clustersList = new ClustersList(clustersRepository.findClustersUsedByUser(Constants.AUTH_USER, defaultNamespace, userAuthId));
+            clustersList = new ClustersList(clustersRepository.findClustersUsedByUser(Constants.AUTH_CLUSTER_ADMIN, userAuthId));
         } catch (Exception e) {
             clustersList.setResultMessage(e.getMessage());
             return (ClustersList) commonService.setResultModel(clustersList, Constants.RESULT_STATUS_FAIL);
