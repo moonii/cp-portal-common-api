@@ -33,14 +33,13 @@ PaaS-TA 컨테이너 플랫폼 COMMON API의 개발 환경은 다음과 같습�
 | Situation                      | Version |
 | ------------------------------ | ------- |
 | JDK                            | 8       |
-| Gradle                         | 6.5     |
-| Spring Boot                    | 2.3.3   |
-| Spring Boot Data JPA           | 2.3.3   |
-| Spring Boot Management         | 1.0.10  |
-| MariaDB Java Client            | 2.2.6   |
-| Lombok		                     | 1.18.12 |
-| Jacoco		                     | 0.8.5   |
-| Swagger	                       | 2.9.2   |
+| Gradle                         | 6.9.2   |
+| Spring Boot                    | 2.7.3   |
+| Spring Boot Management         | 1.0.11.RELEASE  |
+| MariaDB Java Client            | 2.7.5   |
+| Lombok		                 | 1.18.12 |
+| Jacoco		                 | 0.8.5   |
+| Swagger	                     | 2.9.2   |
 
 
 ## 라이선스
