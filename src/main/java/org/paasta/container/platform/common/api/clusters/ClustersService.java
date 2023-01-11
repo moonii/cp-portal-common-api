@@ -1,7 +1,11 @@
 package org.paasta.container.platform.common.api.clusters;
 
+import org.paasta.container.platform.common.api.clusters.clusterlogs.ClusterLogsRepository;
+import org.paasta.container.platform.common.api.clusters.metrics.ClusterStatusRepository;
+import org.paasta.container.platform.common.api.clusters.metrics.NodeStatusRepository;
 import org.paasta.container.platform.common.api.common.CommonService;
 import org.paasta.container.platform.common.api.common.Constants;
+import org.paasta.container.platform.common.api.users.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -21,7 +25,10 @@ public class ClustersService {
     private String defaultNamespace;
     private final CommonService commonService;
     private final ClustersRepository clustersRepository;
-
+    private final UsersRepository usersRepository;
+    private final ClusterLogsRepository clusterLogsRepository;
+    private final ClusterStatusRepository clusterStatusRepository;
+    private final NodeStatusRepository nodeStatusRepository;
 
     /**
      * Instantiates a new Clusters service
@@ -29,9 +36,15 @@ public class ClustersService {
      * @param clustersRepository the cluster repository
      */
     @Autowired
-    public ClustersService(CommonService commonService, ClustersRepository clustersRepository) {
+    public ClustersService(CommonService commonService, ClustersRepository clustersRepository,
+                           UsersRepository usersRepository, ClusterLogsRepository clusterLogsRepository,
+                           ClusterStatusRepository clusterStatusRepository, NodeStatusRepository nodeStatusRepository) {
         this.commonService = commonService;
         this.clustersRepository = clustersRepository;
+        this.usersRepository = usersRepository;
+        this.clusterLogsRepository = clusterLogsRepository;
+        this.clusterStatusRepository = clusterStatusRepository;
+        this.nodeStatusRepository = nodeStatusRepository;
     }
 
     /**
@@ -127,9 +140,28 @@ public class ClustersService {
         return (Clusters) commonService.setResultModel(target, Constants.RESULT_STATUS_SUCCESS);
     }
 
-    @Transactional
+
     public Clusters deleteClusters(String cluster) {
-        clustersRepository.deleteByClusterId(cluster);
+        try {
+            // cp-clusters 데이터 삭제
+            clustersRepository.deleteByClusterId(cluster);
+
+            // cp_users 데이터 삭제
+            usersRepository.deleteAllByClusterId(cluster);
+
+            // cp_cluster_log 데이터 삭제
+            clusterLogsRepository.deleteAllByClusterId(cluster);
+
+            // cp_metric_cluster_status 데이터 삭제
+            clusterStatusRepository.deleteAllByClusterId(cluster);
+
+            // cp_metric_node_status 삭제
+            nodeStatusRepository.deleteAllByClusterId(cluster);
+        }
+        catch (Exception e) {
+            return (Clusters) commonService.setResultModel(new Clusters(), Constants.RESULT_STATUS_FAIL);
+        }
+
         return (Clusters) commonService.setResultModel(new Clusters(), Constants.RESULT_STATUS_SUCCESS);
     }
 

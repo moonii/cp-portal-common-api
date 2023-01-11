@@ -448,8 +448,6 @@ public class UsersServiceTest {
         List<KeycloakUsers> keycloakList = new ArrayList<>();
         KeycloakUsers keycloakUsers = new KeycloakUsers();
         keycloakList.add(keycloakUsers);
-        System.out.println("keycloakList = " + keycloakList.size());
-        System.out.println("keycloakCpRealm = " + keycloakCpRealm);
         when(keycloakUsersService.getKeycloakUser(keycloakCpRealm, USER_AUTH_ID, USER_ID)).thenReturn(keycloakList);
         when(usersRepository.findAllByUserType(Constants.AUTH_SUPER_ADMIN)).thenReturn(usersList);
 
@@ -622,7 +620,6 @@ public class UsersServiceTest {
         try {
             usersService.getClusterAdminList(CLUSTER, SEARCH_NAME);
         } catch (Exception e) {
-            System.out.println("e = " + e);
         }
     }
 
@@ -642,7 +639,6 @@ public class UsersServiceTest {
         try {
             usersService.getUsersMappingDetails(CLUSTER, USER_AUTH_ID);
         } catch (Exception e) {
-            System.out.println("e = " + e);
         }
     }
 
@@ -652,7 +648,6 @@ public class UsersServiceTest {
         try {
             usersService.getClusterAdminDetails(CLUSTER, USER_AUTH_ID);
         } catch (Exception e) {
-            System.out.println("e = " + e);
         }
     }
 
@@ -662,7 +657,6 @@ public class UsersServiceTest {
         try {
             usersService.getUserInfoDetails(CLUSTER, USER_AUTH_ID);
         } catch (Exception e) {
-            System.out.println("e = " + e);
         }
     }
 
@@ -686,7 +680,6 @@ public class UsersServiceTest {
         try {
             usersService.getAllUsersByClusterAndNamespace(CLUSTER, NAMESPACE);
         } catch (Exception e) {
-            System.out.println("e = " + e);
         }
     }
 
@@ -702,7 +695,6 @@ public class UsersServiceTest {
         try {
             usersService.getAllUsersByClusters(CLUSTER);
         } catch (Exception e) {
-            System.out.println("e = " + e);
         }
     }
 
@@ -713,7 +705,6 @@ public class UsersServiceTest {
         try {
             usersService.isExistsCpPortalAdmin();
         } catch (Exception e) {
-            System.out.println("e = " + e);
         }
     }
 }

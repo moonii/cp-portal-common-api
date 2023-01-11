@@ -505,39 +505,6 @@ public class UsersService {
 
 
 
-
-
-    /*
-     * 하나의 Cluster 내 여러 Namespace 에 속한 User 에 대한 상세 조회(Get Users Access Info)
-     *
-     * @return the usersList
-     */
-    /*public Object getUsersAccessInfo(String userAuthId, String cluster, String userType, String namespace) {
-
-        Users users = new Users();
-
-        List<Users> listUser = userRepository.findAllByClusterIdAndUserAuthId(cluster, userAuthId);
-
-        for (int i = 0; i <= listUser.size() - 1; i++) {
-            if (listUser.get(i).getUserType().equals(Constants.AUTH_SUPER_ADMIN)) {
-                users.setRoleSetCode(listUser.get(i).getRoleSetCode());
-            } else if (listUser.get(i).getUserType().equals(Constants.AUTH_CLUSTER_ADMIN)) {
-                users.setRoleSetCode(listUser.get(i).getRoleSetCode());
-            } else if (listUser.get(i).getUserType().equals(Constants.AUTH_USER)) {
-                if (!listUser.get(i).getCpNamespace().equals(namespace)) {
-                    listUser.remove(i);
-                    users.setRoleSetCode(listUser.get(i).getRoleSetCode());
-                } else {
-                    users.setRoleSetCode(listUser.get(i).getRoleSetCode());
-                }
-            }
-        }
-
-        return commonService.setResultModel(users, Constants.RESULT_STATUS_SUCCESS);
-
-    }*/
-
-
     public Object getUsersAccessInfo(String userAuthId, String cluster, String userType, String namespace) {
 
         Users users = new Users();
@@ -713,8 +680,7 @@ public class UsersService {
 
 
     /**
-     * 클러스터 관리자 목록 조회(Get Cluster Admin List) - 사용
-     * 개발 0809 클러스터 관리자 목록 (완)
+     * 클러스터 관리자 목록 조회(Get Cluster Admin List)
      *
      * @return the usersList
      */
@@ -733,10 +699,7 @@ public class UsersService {
         try {
             usersList = userRepository.getUsersDefaultInfo(Constants.HOST_CLUSTER_TYPE, userAuthId, defaultNamespace, Constants.AUTH_USER);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
         }
-
-        System.out.println(usersList);
 
         return (UsersList) commonService.setResultModel(usersList, Constants.RESULT_STATUS_SUCCESS);
     }
@@ -744,7 +707,6 @@ public class UsersService {
 
     /**
      * 사용자 상세 조회(Get user info details)
-     * 개발 0812 일반 사용자 상세화면
      *
      * @return the usersList
      */
@@ -766,7 +728,6 @@ public class UsersService {
 
     /**
      * Portal 활성화 사용자 목록 조회 (Get active users list)
-     * * 개발 0809 사용자 목록조회 -active
      *
      * @return the users list
      */
@@ -800,8 +761,6 @@ public class UsersService {
 
     /**
      * Portal 비활성화 사용자 목록 조회(Get Inactive Users list)
-     * 해당 클러스터에 비활성된 사용자
-     * * 개발 0810 사용자 목록조회 -inactive
      *
      * @return the users list
      */
@@ -824,7 +783,6 @@ public class UsersService {
 
     /**
      * 사용자 상세 조회(Get user info details)
-     * 개발 0809 클러스터 관리자 조회
      *
      * @return the usersList
      */
@@ -838,7 +796,6 @@ public class UsersService {
 
     /**
      * 사용자 상세 조회(Get user info details)
-     * 개발 0817 클러스터 관리자 조회
      *
      * @return the usersList
      */
@@ -941,4 +898,19 @@ public class UsersService {
         // 'SUPER-ADMIN' 권한 사용자 미등록된 경우
         return new ResultStatus(Constants.RESULT_STATUS_SUCCESS, Constants.USER_REGISTRATION_AVAILABLE_MESSAGE);
     }
+
+
+    /**
+     * 클러스터 사용자 목록 조회(Get Users List By Cluster)
+     *
+     * @return the usersList
+     */
+    public UsersList getUsersListByCluster(String clusterId) {
+        UsersList usersList = new UsersList();
+        usersList.setClusterType(clustersService.getClusters(clusterId).getClusterType());
+        usersList.setItems(userRepository.getAllByClusterId(clusterId));
+        usersList = compareKeycloakUser(usersList);
+        return (UsersList) commonService.setResultModel(usersList, Constants.RESULT_STATUS_SUCCESS);
+    }
+
 }

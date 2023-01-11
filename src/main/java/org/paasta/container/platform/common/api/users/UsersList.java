@@ -23,7 +23,7 @@ public class UsersList {
     public String clusterApiUrl;
     public String clusterId;
     public String clusterToken;
-
+    public String clusterType;
 
     @Column(name = "items")
     @ElementCollection(targetClass = String.class)

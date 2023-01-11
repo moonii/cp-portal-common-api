@@ -108,8 +108,7 @@ public class UsersController {
      * @param cluster    the cluster
      * @param searchName the searchName
      * @return the users list
-     * 개발 0809 사용자 목록조회 -active
-     * 개발 0822 active 사용자 테스트
+     *
      */
     @ApiOperation(value = "Admin Portal 활성화 여부에 따른 사용자 목록 조회(Get Users list of admin portal)", nickname = "getUsersListAllByCluster")
     @ApiImplicitParams({
@@ -268,11 +267,9 @@ public class UsersController {
     }
 
 
-    //// keycloak 이후로 추가
 
     /**
      * 사용자 상세 조회(Get user info details)
-     * 개발 0811 상세 정보
      *
      * @return the usersList
      */
@@ -489,9 +486,7 @@ public class UsersController {
 
 
     /**
-     * 클러스터 관리자 목록 조회(Get Cluster Admin List) - 사용
-     * 개발 0809 클러스터 관리자 목록 (완)
-     * 개발 0822 클러스터 관리자 목록 조회 테스트
+     * 클러스터 관리자 목록 조회(Get Cluster Admin List)
      *
      * @return the usersList
      */
@@ -507,8 +502,7 @@ public class UsersController {
 
 
     /**
-     * 사용자 삭제
-     * 개발 0816 사용자 수정을 위한 상세 정보 조회
+     * 사용자 삭제(Delete Users)
      *
      * @return the usersList
      */
@@ -522,8 +516,7 @@ public class UsersController {
 
 
     /**
-     * 사용자 삭제
-     * 개발 0816 사용자 삭제
+     * 사용자 삭제(Delete Users)
      *
      * @return the ResultStatus
      */
@@ -587,6 +580,17 @@ public class UsersController {
         return userService.isExistsCpPortalAdmin();
     }
 
+
+    /**
+     * 클러스터 전체 사용자 목록 조회(Get Users List By Cluster)
+     *
+     * @return the resultStatus
+     */
+    @ApiOperation(value = "클러스터 전체 사용자 목록 조회(Get Users List By Cluster)", nickname = "getUsersListByCluster")
+    @GetMapping(value = "/clusters/{cluster:.+}/users")
+    public UsersList getUsersListByCluster(@PathVariable(value = "cluster") String cluster) {
+        return  userService.getUsersListByCluster(cluster);
+    }
 
 
 }
