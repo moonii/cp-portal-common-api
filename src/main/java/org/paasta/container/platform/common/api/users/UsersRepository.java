@@ -250,4 +250,8 @@ public interface UsersRepository extends JpaRepository<Users, Long>, JpaSpecific
     List<Users>  getAllUsersByClusters(@Param("cluster") String cluster, @Param("authSuperAdmin") String authSuperAdmin,
                                       @Param("authUser") String authUser,  @Param("defaultNamespace") String defaultNamespace);
 
+
+    List<Users> getAllByClusterId(String clusterId);
+
+    void deleteAllByClusterId(String clusterId);
 }

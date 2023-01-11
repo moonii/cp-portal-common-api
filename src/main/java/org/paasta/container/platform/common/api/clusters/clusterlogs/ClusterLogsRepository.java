@@ -11,4 +11,6 @@ import java.util.List;
 @Transactional
 public interface ClusterLogsRepository extends JpaRepository<ClusterLogs, String> {
     List<ClusterLogs> findClustersLogsByClusterIdOrderByProcessNoDesc(String clusterId);
+
+    void deleteAllByClusterId(String clusterId);
 }
