@@ -24,7 +24,7 @@ apply plugin: 'io.spring.dependency-management'
 apply plugin: "org.sonarqube"
 
 
-group = 'org.paasta.container.platform.common.api'
+group = 'org.container.platform.common.api'
 sourceCompatibility = '1.8'
 
 
@@ -55,7 +55,7 @@ ext {
 
 
 jar {
-	archivesBaseName = 'paas-ta-container-platform-common-api'
+	archivesBaseName = 'container-platform-common-api'
 	enabled = false
 }
 

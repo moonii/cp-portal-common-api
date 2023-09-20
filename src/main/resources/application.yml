@@ -3,7 +3,7 @@ spring:
     name: cp-portal-common-api
   security:
     username: admin
-    password: PaaS-TA
+    password: K-PaaS
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
@@ -67,7 +67,7 @@ cpApi:
   url: http://localhost:3333
   authorization:
     id: admin
-    password: PaaS-TA
+    password: K-PaaS
 
 ---
 spring:
@@ -121,4 +121,4 @@ cpApi:
   url: ${CP_PORTAL_API_DNS}
   authorization:
     id: admin
-    password: PaaS-TA
+    password: K-PaaS

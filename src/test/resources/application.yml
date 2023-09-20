@@ -1,12 +1,12 @@
 spring:
   application:
-    name: paas-ta-container-platform-common-api
+    name: container-platform-common-api
   security:
     username: AUTHORIZATION-ID
     password: AUTHORIZATION-PASSWORD
 
 cpNamespace:
-  defaultNamespace: temp-namespace         #paas-ta-container-platform-temp-namespace
+  defaultNamespace: temp-namespace         #k-paas-container-platform-temp-namespace
 
 keycloak:
   cpRealm: test
