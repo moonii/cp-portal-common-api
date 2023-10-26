@@ -20,7 +20,6 @@ public class Constants {
 
     public static final String STRING_DATE_TYPE = "yyyy-MM-dd HH:mm:ss";
     public static final String STRING_TIME_ZONE_ID = "Asia/Seoul";
-    public static final String TARGET_CP_API = "cpApi";
 
     public static final String IS_ADMIN_TRUE = "true";
     public static final String IS_ADMIN_FALSE = "false";

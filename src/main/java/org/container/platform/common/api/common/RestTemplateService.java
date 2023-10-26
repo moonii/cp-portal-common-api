@@ -3,13 +3,9 @@ package org.container.platform.common.api.common;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Base64Utils;
 import org.springframework.web.client.RestTemplate;
-
-import java.nio.charset.StandardCharsets;
 
 /**
  * RestTemplate Service 클래스
@@ -24,7 +20,6 @@ public class RestTemplateService {
     private static final Logger LOGGER = LoggerFactory.getLogger(RestTemplateService.class);
     private static final String AUTHORIZATION_HEADER_KEY = "Authorization";
     private static final String CONTENT_TYPE = "Content-Type";
-    private final String cpApiBase64Authorization;
     private final RestTemplate restTemplate;
     private String base64Authorization;
     private String baseUrl;
@@ -34,21 +29,13 @@ public class RestTemplateService {
     /**
      * Instantiates a new RestTemplate service
      * @param restTemplate                   the rest template
-     * @param cpApiAuthorizationId           the api authorization id
-     * @param cpApiAuthorizationPassword     the api authorization password
      * @param propertyService                the property service
      */
     @Autowired
     public RestTemplateService(RestTemplate restTemplate,
-                               @Value("${cpApi.authorization.id}") String cpApiAuthorizationId,
-                               @Value("${cpApi.authorization.password}") String cpApiAuthorizationPassword,
                                PropertyService propertyService) {
         this.restTemplate = restTemplate;
         this.propertyService = propertyService;
-
-        this.cpApiBase64Authorization = "Basic "
-                + Base64Utils.encodeToString(
-                (cpApiAuthorizationId + ":" + cpApiAuthorizationPassword).getBytes(StandardCharsets.UTF_8));
     }
 
 
@@ -95,12 +82,6 @@ public class RestTemplateService {
 
         String apiUrl = "";
         String authorization = "";
-
-        // CONTAINER PLATFORM API
-        if (Constants.TARGET_CP_API.equals(reqApi)) {
-            apiUrl = propertyService.getCpApiUrl();
-            authorization = cpApiBase64Authorization;
-        }
 
         this.base64Authorization = authorization;
         this.baseUrl = apiUrl;

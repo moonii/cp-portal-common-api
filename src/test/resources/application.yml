@@ -41,9 +41,3 @@ logging:
 
 server:
   port: 3334
-
-cpApi:
-  url: http://localhost:3333
-  authorization:
-    id: AUTHORIZATION-ID
-    password: AUTHORIZATION-PASSWORD
