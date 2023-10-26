@@ -15,9 +15,6 @@ import org.springframework.stereotype.Service;
 @Data
 public class PropertyService {
 
-    @Value("${cpApi.url}")
-    private String cpApiUrl;
-
     @Value("${cp.defaultNamespace}")
     private String defaultNamespace;
 
