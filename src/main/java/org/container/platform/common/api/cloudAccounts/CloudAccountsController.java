@@ -59,6 +59,7 @@ public class CloudAccountsController {
     })
     @GetMapping(value = "/{id:.+}")
     public CloudAccounts getCloudAccounts(@PathVariable Long id){
+        System.out.println(cloudAccountsService.getCloudAccounts(id));
         return cloudAccountsService.getCloudAccounts(id);
     }
 

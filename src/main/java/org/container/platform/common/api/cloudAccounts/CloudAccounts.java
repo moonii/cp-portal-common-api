@@ -52,9 +52,6 @@ public class CloudAccounts {
     @Column(name = "last_modified", updatable = true)
     private String lastModified;
 
-    @Column(name="tenant_id")
-    private String tenant_id;
-
     @Column(name="site")
     private String site;
     public CloudAccounts(String resultCode, String resultMessage) {
