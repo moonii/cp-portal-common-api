@@ -94,7 +94,7 @@ public class ClustersController {
      *
      * @return the clusters
      */
-    @ApiOperation(value="Clusters 정보 수정(Create Clusters Info)", nickname="updateClusters")
+    @ApiOperation(value="Clusters 정보 수정(Update Clusters Info)", nickname="updateClusters")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "clusters", value = "클러스터 정보", required = true, dataType = "Clusters", paramType = "body")
     })

@@ -41,7 +41,7 @@ public class HclTemplatesController {
      *
      * @return the HclTemplatesList
      */
-    @ApiOperation(value="HclTemplates 타입 별 목록 조회(Get CloudAccounts List By Provider)", nickname="getHclTemplatesListByProvider")
+    @ApiOperation(value="HclTemplates 타입 별 목록 조회(Get HclTemplates List By Provider)", nickname="getHclTemplatesListByProvider")
     @GetMapping(value = "/provider/{provider:.+}")
     public HclTemplatesList getHclTemplatesListByProvider(@PathVariable String provider) {
         return hclTemplatesService.getHclTemplatesListByProvider(provider);}

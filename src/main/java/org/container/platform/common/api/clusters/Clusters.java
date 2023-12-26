@@ -46,6 +46,9 @@ public class Clusters {
     @Column(name = "provider_type")
     private String providerType;
 
+    @Column(name = "ssh_key")
+    private String sshKey;
+
     @Column(name = "description")
     private String description;
 
