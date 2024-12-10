@@ -8,13 +8,20 @@ spring:
     pathmatch:
       matching-strategy: ant_path_matcher
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
 cp:
   defaultNamespace: cp-portal-temp-namespace
   clusterName: cp-cluster
 
 keycloak:
-  cpRealm: ${KEYCLOAK_CP_REALM}
+  cpRealmId: ${KEYCLOAK_CP_REALM_ID}
   clusterAdminRole: cp-cluster-admin-role
+
 ---
 spring:
   config:
@@ -30,13 +37,6 @@ spring:
   keycloak:
     datasource:
       jdbc-url: jdbc:mysql://${DATABASE_URL}/${KEYCLOAK_DB_SCHEMA}?autoReconnect=true&useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Seoul&useLegacyDatetimeCode=false
-      driver-class-name: org.mariadb.jdbc.Driver
-      validationQuery: SELECT 1
-      username: ${DATABASE_USER_ID}
-      password: ${DATABASE_USER_PASSWORD}
-  broker:
-    datasource:
-      jdbc-url: jdbc:mysql://${DATABASE_URL}/broker?autoReconnect=true&useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Seoul&useLegacyDatetimeCode=false
       driver-class-name: org.mariadb.jdbc.Driver
       validationQuery: SELECT 1
       username: ${DATABASE_USER_ID}
@@ -78,13 +78,6 @@ spring:
   keycloak:
     datasource:
       jdbc-url: jdbc:mysql://${DATABASE_URL}/${KEYCLOAK_DB_SCHEMA}?autoReconnect=true&useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Seoul&useLegacyDatetimeCode=false
-      driver-class-name: org.mariadb.jdbc.Driver
-      validationQuery: SELECT 1
-      username: ${DATABASE_USER_ID}
-      password: ${DATABASE_USER_PASSWORD}
-  broker:
-    datasource:
-      jdbc-url: jdbc:mysql://${DATABASE_URL}/broker?autoReconnect=true&useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Seoul&useLegacyDatetimeCode=false
       driver-class-name: org.mariadb.jdbc.Driver
       validationQuery: SELECT 1
       username: ${DATABASE_USER_ID}
